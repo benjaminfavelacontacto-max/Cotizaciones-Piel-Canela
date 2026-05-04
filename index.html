@@ -20,15 +20,11 @@
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Seleccionar Producto</label>
-                <select id="productoInput" class="w-full p-2 border border-gray-300 rounded outline-none bg-white">
-                    <option value="1498">Café Fit (850g) - $1,498</option>
-                    <option value="1340">Choco Paty (850g) - $1,340</option>
-                    <option value="2243">Potência 3.0 (850g) - $2,243</option>
-                    <option value="1980">Potência Ultra (1kg) - $1,980</option>
-                    <option value="2113">Ametista UV 1 (900ml) - $2,113</option>
-                    <option value="150">Cinta Roja (1 pza) - $150</option>
-                    <option value="150">Cinta Blanca (1 pza) - $150</option>
-                </select>
+                <div class="flex gap-3 mb-2">
+                    <img id="previewImagen" src="" alt="preview" class="w-12 h-12 rounded object-cover border border-gray-200 bg-gray-100">
+                    <select id="productoInput" class="w-full p-2 border border-gray-300 rounded outline-none bg-white" onchange="cambiarPreview()">
+                        </select>
+                </div>
             </div>
 
             <div class="mb-4">
@@ -42,6 +38,10 @@
 
             <button onclick="generarPDF()" class="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition">
                 ⬇ Descargar PDF
+            </button>
+            
+            <button onclick="limpiarCotizacion()" class="w-full mt-3 bg-red-50 text-red-600 py-2 rounded-lg font-medium hover:bg-red-100 transition text-sm">
+                Limpiar Cotización
             </button>
         </div>
 
@@ -69,7 +69,8 @@
             <table class="w-full mb-8">
                 <thead>
                     <tr class="bg-orange-50 text-orange-900 text-left text-sm">
-                        <th class="py-3 px-3 rounded-l-lg">Descripción</th>
+                        <th class="py-3 px-3 rounded-l-lg w-16 text-center">Imagen</th>
+                        <th class="py-3 px-3">Descripción</th>
                         <th class="py-3 px-3 text-center">Cant.</th>
                         <th class="py-3 px-3 text-right">Precio Unit.</th>
                         <th class="py-3 px-3 text-right rounded-r-lg">Total</th>
@@ -103,29 +104,64 @@
     </div>
 
     <script>
+        // TU BASE DE DATOS ACTUALIZADA CON NOMBRES EXACTOS DE ARCHIVO
+        const CATALOGO = [
+            { id: '1', nombre: 'Café Fit (850g)', precio: 1498, imagen: './Café Fit.jpg' },
+            { id: '2', nombre: 'Choco Paty (850g)', precio: 1340, imagen: './Choco Paty.jpg' },
+            { id: '3', nombre: 'Morango Bronze (850g)', precio: 1340, imagen: './Morango Bronze.jpg' },
+            { id: '4', nombre: 'Potência 3.0 (850g)', precio: 2243, imagen: './Potência 3.0.jpg' },
+            { id: '5', nombre: 'Potência Ultra (1kg)', precio: 1980, imagen: './Potência Ultra.jpg' },
+            { id: '6', nombre: 'Ametista UV 1 (900ml)', precio: 2113, imagen: './Ametista UV 1.jpg' },
+            { id: '7', nombre: 'Ametista UV 2 (900ml)', precio: 1440, imagen: './Ametista UV 2.jpg' },
+            { id: '8', nombre: 'Dolomita (500g)', precio: 620, imagen: './Dolomita.jpg' },
+            { id: '9', nombre: 'Argila Branca (500g)', precio: 636, imagen: './Argila Branca.jpg' },
+            { id: '10', nombre: 'Cinta Vermelha-c9', precio: 150, imagen: './Cinta Vermelha-c9.jpg' }
+        ];
+
         let items = [];
         let subtotal = 0;
 
-        // Poner la fecha de hoy
-        document.getElementById('fechaHoy').innerText = new Date().toLocaleDateString('es-MX');
+        // Iniciar la página
+        window.onload = function() {
+            document.getElementById('fechaHoy').innerText = new Date().toLocaleDateString('es-MX');
+            
+            const select = document.getElementById('productoInput');
+            CATALOGO.forEach(prod => {
+                const option = document.createElement('option');
+                option.value = prod.id;
+                option.text = `${prod.nombre} - $${prod.precio.toLocaleString('es-MX')}`;
+                select.appendChild(option);
+            });
+            cambiarPreview();
+        };
 
-        // Actualizar el nombre del cliente en tiempo real
+        // Cambiar la foto de vista previa
+        function cambiarPreview() {
+            const select = document.getElementById('productoInput');
+            const producto = CATALOGO.find(p => p.id === select.value);
+            document.getElementById('previewImagen').src = producto.imagen;
+        }
+
+        // Actualizar el nombre del cliente
         document.getElementById('clienteInput').addEventListener('input', function(e) {
             document.getElementById('nombreClienteDoc').innerText = e.target.value || '___________________________';
         });
 
+        // Agregar producto a la lista
         function agregarProducto() {
             const select = document.getElementById('productoInput');
+            const producto = CATALOGO.find(p => p.id === select.value);
             const cantidad = parseInt(document.getElementById('cantidadInput').value);
-            const precio = parseFloat(select.value);
-            const nombre = select.options[select.selectedIndex].text.split(' - ')[0];
 
-            const total = precio * cantidad;
-            items.push({ nombre, cantidad, precio, total });
-            
+            const total = producto.precio * cantidad;
+            items.push({ ...producto, cantidad, total });
             actualizarTabla();
+            
+            // Regresar la cantidad a 1 por defecto
+            document.getElementById('cantidadInput').value = 1;
         }
 
+        // Actualizar tabla visual y totales
         function actualizarTabla() {
             const tbody = document.getElementById('tablaProductos');
             tbody.innerHTML = '';
@@ -136,6 +172,9 @@
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-gray-100 text-sm';
                 tr.innerHTML = `
+                    <td class="py-2 px-3 text-center">
+                        <img src="${item.imagen}" class="w-10 h-10 rounded-full object-cover mx-auto border border-gray-200 bg-white" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSIzIiB5PSIzIiB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHJ4PSIyIiByeT0iMiI+PC9yZWN0PjxjaXJjbGUgY3g9IjguNSIgY3k9IjguNSIgcj0iMS41Ij48L2NpcmNsZT48cG9seWxpbmUgcG9pbnRzPSIyMSAxNSAxNiAxMCA1IDIxIj48L3BvbHlsaW5lPjwvc3ZnPg=='">
+                    </td>
                     <td class="py-3 px-3 text-gray-800 font-medium">${item.nombre}</td>
                     <td class="py-3 px-3 text-center text-gray-600">${item.cantidad}</td>
                     <td class="py-3 px-3 text-right text-gray-600">$${item.precio.toLocaleString('es-MX')}</td>
@@ -148,16 +187,41 @@
             document.getElementById('totalDoc').innerText = '$' + subtotal.toLocaleString('es-MX') + ' MXN';
         }
 
+        // Limpiar para hacer una nueva cotización
+        function limpiarCotizacion() {
+            items = [];
+            document.getElementById('clienteInput').value = '';
+            document.getElementById('nombreClienteDoc').innerText = '___________________________';
+            document.getElementById('cantidadInput').value = 1;
+            actualizarTabla();
+        }
+
+        // Convertir el HTML a PDF
         function generarPDF() {
+            if(items.length === 0) {
+                alert("Agrega al menos un producto antes de generar el PDF.");
+                return;
+            }
+            
             const elemento = document.getElementById('documento-pdf');
             const opciones = {
                 margin: 0.5,
                 filename: 'Cotizacion-Piel-Canela.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
+                html2canvas: { scale: 2, useCORS: true }, 
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
-            html2pdf().set(opciones).from(elemento).save();
+            
+            // Oculta visualmente el botón mientras carga para que no se presione dos veces
+            const btn = event.target;
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = 'Generando...';
+            btn.disabled = true;
+            
+            html2pdf().set(opciones).from(elemento).save().then(() => {
+                btn.innerHTML = textoOriginal;
+                btn.disabled = false;
+            });
         }
     </script>
 </body>

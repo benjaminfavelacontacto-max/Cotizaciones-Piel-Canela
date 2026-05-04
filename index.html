@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador - Piel Canela</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="bg-gray-50 p-6 font-sans">
+    <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-gray-200" id="controles">
+            <h2 class="text-lg font-bold text-gray-800 mb-4">Nueva Cotización</h2>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Cliente</label>
+                <input type="text" id="clienteInput" class="w-full p-2 border border-gray-300 rounded focus:ring-orange-500 focus:border-orange-500 outline-none" placeholder="Ej. Shams Bronceado...">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Seleccionar Producto</label>
+                <select id="productoInput" class="w-full p-2 border border-gray-300 rounded outline-none bg-white">
+                    <option value="1498">Café Fit (850g) - $1,498</option>
+                    <option value="1340">Choco Paty (850g) - $1,340</option>
+                    <option value="2243">Potência 3.0 (850g) - $2,243</option>
+                    <option value="1980">Potência Ultra (1kg) - $1,980</option>
+                    <option value="2113">Ametista UV 1 (900ml) - $2,113</option>
+                    <option value="150">Cinta Roja (1 pza) - $150</option>
+                    <option value="150">Cinta Blanca (1 pza) - $150</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
+                <input type="number" id="cantidadInput" min="1" value="1" class="w-full p-2 border border-gray-300 rounded outline-none">
+            </div>
+
+            <button onclick="agregarProducto()" class="w-full bg-orange-100 text-orange-700 py-2 rounded-lg font-medium hover:bg-orange-200 transition mb-6">
+                + Agregar a la lista
+            </button>
+
+            <button onclick="generarPDF()" class="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition">
+                ⬇ Descargar PDF
+            </button>
+        </div>
+
+        <div class="lg:col-span-2 bg-white p-8 rounded-xl shadow-lg border border-gray-200" id="documento-pdf">
+            <div class="flex justify-between items-start border-b-2 border-orange-200 pb-6 mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold text-xl border-2 border-orange-300">PC</div>
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-orange-800">PIEL CANELA</h1>
+                        <p class="text-sm text-gray-500 font-medium tracking-widest">SPA & BRONCEADO</p>
+                        <p class="text-xs text-gray-400 mt-1">Av Guadalupe 6304, Jalisco<br>Cel: +52 3332508073</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <h2 class="text-2xl font-bold text-gray-300 uppercase tracking-wider">Cotización</h2>
+                    <p class="text-sm text-gray-600 mt-2"><strong>Fecha:</strong> <span id="fechaHoy"></span></p>
+                </div>
+            </div>
+
+            <div class="mb-6 bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-xs font-bold text-gray-500 uppercase mb-1">Preparado para:</h3>
+                <p class="text-lg font-medium text-gray-800" id="nombreClienteDoc">___________________________</p>
+            </div>
+
+            <table class="w-full mb-8">
+                <thead>
+                    <tr class="bg-orange-50 text-orange-900 text-left text-sm">
+                        <th class="py-3 px-3 rounded-l-lg">Descripción</th>
+                        <th class="py-3 px-3 text-center">Cant.</th>
+                        <th class="py-3 px-3 text-right">Precio Unit.</th>
+                        <th class="py-3 px-3 text-right rounded-r-lg">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaProductos">
+                    </tbody>
+            </table>
+
+            <div class="flex justify-end">
+                <div class="w-72 bg-gray-50 p-4 rounded-lg">
+                    <div class="flex justify-between py-1 text-sm text-gray-600">
+                        <span>Subtotal:</span>
+                        <span id="subtotalDoc">$0.00</span>
+                    </div>
+                    <div class="flex justify-between py-1 text-sm text-gray-600 border-b border-gray-200 pb-2 mb-2">
+                        <span>Gastos de envío:</span>
+                        <span>Por cotizar</span>
+                    </div>
+                    <div class="flex justify-between items-center text-lg font-black text-orange-700">
+                        <span>Total Estimado:</span>
+                        <span id="totalDoc">$0.00 MXN</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center text-xs text-gray-400 border-t border-gray-100 pt-4">
+                Nota: Los precios expresados no incluyen IVA ni gastos de envío a menos que se especifique lo contrario.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let items = [];
+        let subtotal = 0;
+
+        // Poner la fecha de hoy
+        document.getElementById('fechaHoy').innerText = new Date().toLocaleDateString('es-MX');
+
+        // Actualizar el nombre del cliente en tiempo real
+        document.getElementById('clienteInput').addEventListener('input', function(e) {
+            document.getElementById('nombreClienteDoc').innerText = e.target.value || '___________________________';
+        });
+
+        function agregarProducto() {
+            const select = document.getElementById('productoInput');
+            const cantidad = parseInt(document.getElementById('cantidadInput').value);
+            const precio = parseFloat(select.value);
+            const nombre = select.options[select.selectedIndex].text.split(' - ')[0];
+
+            const total = precio * cantidad;
+            items.push({ nombre, cantidad, precio, total });
+            
+            actualizarTabla();
+        }
+
+        function actualizarTabla() {
+            const tbody = document.getElementById('tablaProductos');
+            tbody.innerHTML = '';
+            subtotal = 0;
+
+            items.forEach((item) => {
+                subtotal += item.total;
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-100 text-sm';
+                tr.innerHTML = `
+                    <td class="py-3 px-3 text-gray-800 font-medium">${item.nombre}</td>
+                    <td class="py-3 px-3 text-center text-gray-600">${item.cantidad}</td>
+                    <td class="py-3 px-3 text-right text-gray-600">$${item.precio.toLocaleString('es-MX')}</td>
+                    <td class="py-3 px-3 text-right font-bold text-gray-800">$${item.total.toLocaleString('es-MX')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('subtotalDoc').innerText = '$' + subtotal.toLocaleString('es-MX');
+            document.getElementById('totalDoc').innerText = '$' + subtotal.toLocaleString('es-MX') + ' MXN';
+        }
+
+        function generarPDF() {
+            const elemento = document.getElementById('documento-pdf');
+            const opciones = {
+                margin: 0.5,
+                filename: 'Cotizacion-Piel-Canela.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opciones).from(elemento).save();
+        }
+    </script>
+</body>
+</html>

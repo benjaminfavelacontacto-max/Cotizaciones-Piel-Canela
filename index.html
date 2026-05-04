@@ -3,156 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piel Canela - Sistema de Cotizaciones</title>
+    <title>Piel Canela - Cotizador Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* Estilos específicos para el PDF */
-        #documento-pdf {
-            width: 800px; /* Ancho fijo para que no se mueva nada en el PDF */
-            padding: 40px;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Estilos Rígidos para el PDF */
+        #area-cotizacion {
+            width: 800px; /* Tamaño carta aproximado en pixeles */
             background: white;
+            margin: 0 auto;
         }
-        .tabla-pdf { border-collapse: collapse; width: 100%; }
-        .tabla-pdf th, .tabla-pdf td { border-bottom: 1px solid #f0f0f0; padding: 12px 8px; }
+
+        .tabla-pdf { width: 100%; border-collapse: collapse; }
+        .tabla-pdf th { background-color: #f0fdf4; color: #166534; padding: 12px; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
+        .tabla-pdf td { padding: 10px; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
+        
+        /* Evitar que las filas se corten entre páginas */
+        tr { page-break-inside: avoid; }
+
         .no-print { display: block; }
         @media print { .no-print { display: none !important; } }
         
-        /* Animación para el toggle de IVA */
         .dot { transition: all 0.3s ease-in-out; }
-        input:checked ~ .dot { transform: translateX(100%); background-color: white; }
-        input:checked ~ .block { background-color: #db2777; }
+        input:checked ~ .dot { transform: translateX(100%); }
+        input:checked ~ .bg-toggle { background-color: #db2777; }
     </style>
 </head>
-<body class="bg-emerald-50 p-4 md:p-10 font-sans">
+<body class="bg-emerald-50 p-4 md:p-8">
 
-    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div class="max-w-[1300px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         <div class="lg:col-span-4 space-y-6 no-print">
-            <div class="bg-white p-6 rounded-2xl shadow-xl border border-pink-100">
-                <h2 class="text-2xl font-black text-pink-600 mb-6 border-b pb-2 text-center uppercase tracking-tighter">Panel de Ventas</h2>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-pink-100">
+                <h2 class="text-2xl font-black text-pink-600 mb-6 text-center uppercase tracking-tighter italic">Piel Canela Sales</h2>
                 
-                <div class="mb-6">
-                    <label class="block text-xs font-black text-gray-400 uppercase mb-2">1. Seleccionar Cliente Frecuente</label>
-                    <select id="clienteSelect" class="w-full p-3 bg-emerald-50 border-2 border-emerald-100 rounded-xl outline-none focus:border-pink-400 text-sm font-bold text-emerald-900" onchange="autocompletarCliente()">
+                <div class="mb-4">
+                    <label class="block text-[10px] font-black text-emerald-600 uppercase mb-1">Cargar Cliente Frecuente</label>
+                    <select id="clienteSelect" class="w-full p-3 bg-emerald-50 border-2 border-emerald-100 rounded-2xl outline-none focus:border-pink-400 text-sm font-bold" onchange="seleccionarCliente()">
                         <option value="">-- CLIENTE NUEVO / MANUAL --</option>
                     </select>
                 </div>
 
-                <div class="space-y-3">
-                    <input type="text" id="clienteInput" placeholder="Nombre del Cliente" class="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-pink-400 outline-none text-sm" oninput="actualizarPDF()">
-                    <input type="text" id="direccionInput" placeholder="Dirección" class="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-pink-400 outline-none text-sm" oninput="actualizarPDF()">
+                <div class="grid grid-cols-1 gap-3">
+                    <input type="text" id="inNombre" placeholder="Nombre del Cliente" class="w-full p-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-pink-400 outline-none text-sm" oninput="sincronizar()">
+                    <input type="text" id="inDir" placeholder="Dirección completa" class="w-full p-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-pink-400 outline-none text-sm" oninput="sincronizar()">
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="telefonoInput" placeholder="Teléfono" class="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-pink-400 outline-none text-sm" oninput="actualizarPDF()">
-                        <input type="text" id="ordenInput" placeholder="No. Orden (Ej: 001)" class="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-pink-400 outline-none text-sm" oninput="actualizarPDF()">
+                        <input type="text" id="inTel" placeholder="Teléfono" class="w-full p-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-pink-400 outline-none text-sm" oninput="sincronizar()">
+                        <input type="text" id="inOrden" placeholder="No. Orden" class="w-full p-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-pink-400 outline-none text-sm" oninput="sincronizar()">
                     </div>
                 </div>
 
                 <div class="mt-6 flex items-center justify-between bg-pink-50 p-4 rounded-2xl border border-pink-100">
-                    <span class="text-sm font-black text-pink-700 uppercase">Incluir IVA (16%)</span>
+                    <span class="text-xs font-black text-pink-700 uppercase">Aplicar IVA (16%)</span>
                     <label class="inline-flex relative items-center cursor-pointer">
-                        <input type="checkbox" id="ivaCheckbox" class="sr-only" onchange="renderTabla()">
-                        <div class="block w-12 h-7 bg-gray-300 rounded-full"></div>
-                        <div class="dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full shadow-md"></div>
+                        <input type="checkbox" id="ivaCheck" class="sr-only" onchange="renderItems()">
+                        <div class="bg-toggle w-11 h-6 bg-gray-300 rounded-full transition-colors"></div>
+                        <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow transition-transform"></div>
                     </label>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-xl border border-emerald-100">
-                <h3 class="text-sm font-black text-emerald-800 uppercase mb-4 tracking-widest">2. Agregar Productos</h3>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-emerald-100">
+                <h3 class="text-[10px] font-black text-emerald-800 uppercase mb-4 tracking-widest text-center">Catálogo de Productos</h3>
                 
                 <div class="flex gap-4 mb-4">
-                    <img id="prevImg" src="" class="w-16 h-16 rounded-lg object-cover border-2 border-emerald-50 bg-emerald-50">
-                    <select id="prodSelect" class="flex-1 p-2 bg-white border-2 border-gray-100 rounded-xl outline-none focus:border-emerald-400 text-sm" onchange="actualizarPreview()">
+                    <img id="prevImg" src="" class="w-20 h-20 rounded-2xl object-cover border-2 border-emerald-50 bg-emerald-50 shadow-inner">
+                    <select id="prodSelect" class="flex-1 p-2 bg-white border-2 border-gray-100 rounded-xl outline-none focus:border-emerald-400 text-xs font-bold" onchange="updatePrev()">
                     </select>
                 </div>
                 
                 <div class="flex gap-2">
-                    <input type="number" id="cantInput" value="1" min="1" class="w-20 p-3 bg-gray-50 border-2 border-gray-100 rounded-xl text-center font-bold">
-                    <button onclick="agregar()" class="flex-1 bg-emerald-500 text-white font-black rounded-xl hover:bg-emerald-600 transition shadow-lg shadow-emerald-100">AGREGAR PRODUCTO</button>
+                    <input type="number" id="inCant" value="1" min="1" class="w-20 p-3 bg-gray-50 border-2 border-gray-100 rounded-xl text-center font-black text-emerald-600">
+                    <button onclick="agregarItem()" class="flex-1 bg-emerald-500 text-white font-black rounded-xl hover:bg-emerald-600 transition shadow-lg shadow-emerald-100 uppercase text-xs tracking-widest">Añadir</button>
                 </div>
             </div>
 
-            <button onclick="descargar()" class="w-full bg-pink-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl hover:bg-pink-700 transition transform hover:scale-[1.02]">⬇ DESCARGAR PDF AHORA</button>
-            <button onclick="limpiar()" class="w-full text-gray-400 text-xs font-bold uppercase hover:text-red-500 transition">Borrar todo y empezar de nuevo</button>
+            <button onclick="bajarPDF()" class="w-full bg-pink-600 text-white py-5 rounded-3xl font-black text-xl shadow-2xl hover:bg-pink-700 transition-all transform hover:-translate-y-1">⬇ DESCARGAR PDF</button>
+            <button onclick="window.location.reload()" class="w-full text-gray-400 text-[10px] font-black uppercase hover:text-red-500 transition tracking-tighter">Limpiar y reiniciar todo</button>
         </div>
 
-        <div class="lg:col-span-8 overflow-auto bg-gray-200 p-4 rounded-3xl shadow-inner">
-            <div id="documento-pdf" class="mx-auto shadow-2xl">
+        <div class="lg:col-span-8 overflow-x-auto bg-gray-300/50 p-6 rounded-[40px] shadow-inner border-4 border-white">
+            <div id="area-cotizacion" class="shadow-2xl rounded-sm p-12">
                 
-                <div class="flex justify-between items-center mb-10">
-                    <img src="./Assets/logo.png" class="w-48 h-48 object-contain" onerror="this.src='https://via.placeholder.com/200x200?text=Logo+Piel+Canela'">
-                    <div class="text-right space-y-1">
-                        <h1 class="text-4xl font-black text-pink-600 leading-none">PIEL CANELA</h1>
-                        <p class="text-emerald-700 font-bold tracking-[0.3em] text-sm uppercase">Spa & Bronceado</p>
-                        <p class="text-[10px] text-gray-400 mt-2 leading-tight">
+                <div class="flex justify-between items-center mb-12">
+                    <img src="./Assets/logo.png" class="w-48 h-48 object-contain" onerror="this.src='https://via.placeholder.com/200x200?text=LOGO+PIEL+CANELA'">
+                    <div class="text-right">
+                        <h1 class="text-5xl font-black text-pink-600 tracking-tighter leading-none">PIEL CANELA</h1>
+                        <p class="text-emerald-700 font-bold tracking-[0.4em] text-sm uppercase mt-1">Spa & Bronceado</p>
+                        <div class="text-[10px] text-gray-400 mt-4 leading-relaxed font-medium uppercase">
                             Av Guadalupe 6304, Jalisco, Guadalajara<br>
                             Jardines de Chapalita CP 45010<br>
                             WhatsApp: +52 3332508073
-                        </p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex justify-between items-end mb-8 border-b-4 border-pink-50 pb-4">
-                    <div>
-                        <h2 class="text-5xl font-black text-gray-100 uppercase tracking-tighter">Cotización</h2>
-                    </div>
-                    <div class="text-right text-sm">
-                        <p class="text-gray-400 font-bold uppercase text-[10px]">No. de Orden</p>
-                        <p id="pdf-orden" class="text-xl font-black text-pink-500">---</p>
-                        <p class="text-gray-400 font-bold uppercase text-[10px] mt-2">Fecha de Emisión</p>
-                        <p id="pdf-fecha" class="font-bold text-gray-700"></p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-8 mb-10">
-                    <div class="bg-emerald-50/50 p-4 rounded-2xl border-l-4 border-emerald-400">
-                        <h4 class="text-[10px] font-black text-emerald-700 uppercase mb-1">Preparado para:</h4>
-                        <p id="pdf-nombre" class="text-lg font-black text-gray-800">___________________________</p>
-                        <p id="pdf-direccion" class="text-xs text-gray-500 mt-1 italic">Dirección no especificada</p>
-                    </div>
-                    <div class="p-4">
-                        <h4 class="text-[10px] font-black text-gray-400 uppercase mb-1">Contacto:</h4>
-                        <p id="pdf-telefono" class="text-sm font-bold text-gray-700">Cel: ---</p>
-                        <p class="text-sm font-bold text-gray-700 mt-1">Validez: 30 días naturales</p>
+                <div class="flex justify-between items-end border-b-8 border-pink-50 pb-6 mb-10">
+                    <h2 class="text-7xl font-black text-gray-100 uppercase tracking-tighter">Cotización</h2>
+                    <div class="text-right">
+                        <div class="mb-2">
+                            <span class="text-[10px] font-black text-gray-300 uppercase block">No. de Orden</span>
+                            <span id="pdfOrden" class="text-2xl font-black text-pink-500 leading-none">---</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-black text-gray-300 uppercase block">Fecha</span>
+                            <span id="pdfFecha" class="text-sm font-bold text-gray-700 leading-none"></span>
+                        </div>
                     </div>
                 </div>
 
-                <table class="tabla-pdf mb-10">
+                <div class="grid grid-cols-5 gap-6 mb-12">
+                    <div class="col-span-3 bg-emerald-50/50 p-6 rounded-3xl border-l-8 border-emerald-400">
+                        <h4 class="text-[10px] font-black text-emerald-700 uppercase mb-2 tracking-widest">Preparado para:</h4>
+                        <p id="pdfNombre" class="text-2xl font-black text-gray-800 leading-tight">___________________________</p>
+                        <p id="pdfDir" class="text-xs text-gray-500 mt-2 font-medium italic">Dirección no especificada</p>
+                    </div>
+                    <div class="col-span-2 p-6 flex flex-col justify-center">
+                        <div class="mb-3">
+                            <span class="text-[10px] font-black text-gray-400 uppercase block">Teléfono de contacto:</span>
+                            <span id="pdfTel" class="text-sm font-bold text-gray-700">---</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-black text-gray-400 uppercase block">Periodo de Validez:</span>
+                            <span class="text-sm font-bold text-gray-700">30 días naturales</span>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="tabla-pdf mb-12">
                     <thead>
-                        <tr class="bg-emerald-500 text-white">
-                            <th class="rounded-l-xl text-[10px] uppercase w-16">Foto</th>
-                            <th class="text-left text-[10px] uppercase">Descripción del Producto</th>
-                            <th class="text-center text-[10px] uppercase w-20">Cant.</th>
-                            <th class="text-right text-[10px] uppercase w-28">P. Unitario</th>
-                            <th class="rounded-r-xl text-right text-[10px] uppercase w-28">Total</th>
+                        <tr>
+                            <th class="rounded-l-2xl text-center w-20">FOTO</th>
+                            <th class="text-left">DESCRIPCIÓN DEL PRODUCTO</th>
+                            <th class="text-center w-16">CANT.</th>
+                            <th class="text-right w-32">P. UNITARIO</th>
+                            <th class="rounded-r-2xl text-right w-32">TOTAL</th>
                             <th class="no-print w-8"></th>
                         </tr>
                     </thead>
-                    <tbody id="lista-items" class="text-sm font-medium text-gray-600">
+                    <tbody id="pdfTablaBody" class="font-bold text-gray-600">
                         </tbody>
                 </table>
 
                 <div class="flex justify-end">
-                    <div class="w-72 space-y-3">
-                        <div class="flex justify-between text-sm px-2 text-gray-500">
-                            <span>Subtotal:</span>
-                            <span id="pdf-subtotal" class="font-bold">$0.00</span>
+                    <div class="w-80 space-y-3">
+                        <div class="flex justify-between text-xs px-4 text-gray-400 font-black uppercase">
+                            <span>Subtotal Bruto</span>
+                            <span id="pdfSubtotal">$0.00</span>
                         </div>
-                        <div id="pdf-fila-iva" class="flex justify-between text-sm px-2 text-gray-500 hidden">
-                            <span>IVA (16%):</span>
-                            <span id="pdf-iva" class="font-bold">$0.00</span>
+                        <div id="pdfFilaIva" class="flex justify-between text-xs px-4 text-emerald-600 font-black uppercase hidden">
+                            <span>Impuesto IVA (16%)</span>
+                            <span id="pdfIva">$0.00</span>
                         </div>
-                        <div class="flex justify-between bg-pink-600 text-white p-4 rounded-2xl items-center shadow-lg shadow-pink-100">
-                            <span class="font-black uppercase text-xs">Total Final</span>
-                            <span id="pdf-total" class="text-2xl font-black">$0.00</span>
+                        <div class="flex justify-between bg-pink-600 text-white p-6 rounded-[30px] items-center shadow-2xl shadow-pink-200 ring-4 ring-pink-50">
+                            <span class="font-black uppercase text-xs tracking-tighter">Total Final (MXN)</span>
+                            <span id="pdfTotal" class="text-3xl font-black">$0.00</span>
                         </div>
-                        <p class="text-[9px] text-center text-gray-300 font-bold uppercase italic mt-4">Precios expresados en Pesos Mexicanos (MXN)</p>
                     </div>
                 </div>
 
-                <div class="mt-20 text-center border-t border-gray-50 pt-6">
-                    <p class="text-[10px] text-gray-400 font-medium">¡Gracias por elegir a Piel Canela! Esperamos verte pronto.</p>
+                <div class="mt-24 text-center border-t border-gray-50 pt-8">
+                    <p class="text-[10px] text-gray-300 font-black uppercase tracking-widest">¡Gracias por tu preferencia!</p>
+                    <p class="text-[9px] text-gray-200 mt-1">PIEL CANELA SPA & BRONCEADO - 2026</p>
                 </div>
 
             </div>
@@ -160,73 +176,91 @@
     </div>
 
     <script>
+        // LISTA DE CLIENTES COMPLETA
         const CLIENTES = [
-            { nombre: 'Shams Bronceado Natural', dir: 'Calle Gutenberg 194, 11590 CDMX', tel: '5539174811' },
+            { nombre: 'Shams Bronceado Natural', dir: 'Calle Gutenberg 194, CDMX', tel: '5539174811' },
             { nombre: 'Mithra Sun&Spa', dir: 'Ciudad de México, CDMX', tel: '5619859660' },
             { nombre: 'The Temple Bronze', dir: 'Blvd Kukulcan km 12, Cancún Q.R.', tel: '9983936134' },
-            { nombre: 'Solarium Tanning Salon', dir: 'Campeche 280, Hipódromo, CDMX', tel: '5512345678' }
+            { nombre: 'Solarium Tanning Salon', dir: 'Campeche 280, Hipódromo, CDMX', tel: '5512345678' },
+            { nombre: 'Katiuska del Valle', dir: 'Monterrey, N.L.', tel: '8134426483' },
+            { nombre: 'Glendy Escalante', dir: 'Mérida, Yucatán', tel: '9993331647' },
+            { nombre: 'Elizabeth Prado', dir: 'Estado de México', tel: '5544525825' },
+            { nombre: 'Karla Sandoval', dir: 'Ciudad de México', tel: '---' },
+            { nombre: 'Mariela Pérez', dir: 'Ciudad de México', tel: '---' },
+            { nombre: 'Paola Cedeño', dir: 'Guadalajara, Jalisco', tel: '---' }
         ];
 
+        // LISTA DE PRODUCTOS COMPLETA
         const PRODUCTOS = [
             { id: 1, n: 'Café Fit (850g)', p: 1498, img: 'cafe-fit.jpg' },
             { id: 2, n: 'Choco Paty (850g)', p: 1340, img: 'choco-paty.jpg' },
             { id: 3, n: 'Morango Bronze (850g)', p: 1340, img: 'morango-bronze.jpg' },
-            { id: 4, n: 'Potência 3.0 (850g)', p: 2243, img: 'potencia-3.jpg' },
-            { id: 5, n: 'Cinta Vermelha-c9', p: 150, img: 'vermelha-c9.jpg' },
-            { id: 6, n: 'Barbie-c9', p: 150, img: 'barbie-c9.jpg' }
+            { id: 4, n: 'Pêssego Bronze (850g)', p: 1340, img: 'pessego-bronze.jpg' },
+            { id: 5, n: 'Potência 3.0 (850g)', p: 2243, img: 'potencia-3.jpg' },
+            { id: 6, n: 'Potência Ultra (1kg)', p: 1980, img: 'potencia-ultra.jpg' },
+            { id: 7, n: 'Ametista UV 1 (900ml)', p: 2113, img: 'ametista-uv-1.jpg' },
+            { id: 8, n: 'Ametista UV II (900ml)', p: 1440, img: 'ametista-uv-2.jpg' },
+            { id: 9, n: 'Cinta Vermelha-c9', p: 150, img: 'vermelha-c9.jpg' },
+            { id: 10, n: 'Barbie-c9', p: 150, img: 'barbie-c9.jpg' },
+            { id: 11, n: 'Animal Print-c9', p: 150, img: 'animal-print-c9.jpg' },
+            { id: 12, n: 'Óleo Iluminador (450ml)', p: 1092, img: 'oleo-iluminador.jpg' }
         ];
 
         let carrito = [];
 
         window.onload = () => {
-            document.getElementById('pdf-fecha').innerText = new Date().toLocaleDateString('es-MX');
+            document.getElementById('pdfFecha').innerText = new Date().toLocaleDateString('es-MX');
             const cSel = document.getElementById('clienteSelect');
-            CLIENTES.forEach((c, i) => cSel.add(new Option(c.nombre, i)));
+            CLIENTES.sort((a,b) => a.nombre.localeCompare(b.nombre)).forEach((c, i) => cSel.add(new Option(c.nombre, i)));
             
             const pSel = document.getElementById('prodSelect');
             PRODUCTOS.forEach((p, i) => pSel.add(new Option(`${p.n} ($${p.p})`, i)));
-            actualizarPreview();
+            updatePrev();
         };
 
-        function autocompletarCliente() {
+        function seleccionarCliente() {
             const idx = document.getElementById('clienteSelect').value;
             if (idx !== "") {
                 const c = CLIENTES[idx];
-                document.getElementById('clienteInput').value = c.nombre;
-                document.getElementById('direccionInput').value = c.dir;
-                document.getElementById('telefonoInput').value = c.tel;
+                document.getElementById('inNombre').value = c.nombre;
+                document.getElementById('inDir').value = c.dir;
+                document.getElementById('inTel').value = c.tel;
+            } else {
+                document.getElementById('inNombre').value = "";
+                document.getElementById('inDir').value = "";
+                document.getElementById('inTel').value = "";
             }
-            actualizarPDF();
+            sincronizar();
         }
 
-        function actualizarPDF() {
-            document.getElementById('pdf-nombre').innerText = document.getElementById('clienteInput').value || '___________________________';
-            document.getElementById('pdf-direccion').innerText = document.getElementById('direccionInput').value || 'Dirección no especificada';
-            document.getElementById('pdf-telefono').innerText = 'Cel: ' + (document.getElementById('telefonoInput').value || '---');
-            document.getElementById('pdf-orden').innerText = document.getElementById('ordenInput').value || '---';
+        function sincronizar() {
+            document.getElementById('pdfNombre').innerText = document.getElementById('inNombre').value || '___________________________';
+            document.getElementById('pdfDir').innerText = document.getElementById('inDir').value || 'Dirección no especificada';
+            document.getElementById('pdfTel').innerText = 'Cel: ' + (document.getElementById('inTel').value || '---');
+            document.getElementById('pdfOrden').innerText = document.getElementById('inOrden').value || '---';
         }
 
-        function actualizarPreview() {
+        function updatePrev() {
             const p = PRODUCTOS[document.getElementById('prodSelect').value];
             document.getElementById('prevImg').src = `./Assets/${p.img}`;
         }
 
-        function agregar() {
+        function agregarItem() {
             const p = PRODUCTOS[document.getElementById('prodSelect').value];
-            const cant = parseInt(document.getElementById('cantInput').value);
+            const cant = parseInt(document.getElementById('inCant').value);
             const existe = carrito.find(item => item.id === p.id);
             if (existe) { existe.c += cant; } else { carrito.push({ ...p, c: cant }); }
-            renderTabla();
-            document.getElementById('cantInput').value = 1;
+            renderItems();
+            document.getElementById('inCant').value = 1;
         }
 
-        function eliminar(idx) {
+        function borrarItem(idx) {
             carrito.splice(idx, 1);
-            renderTabla();
+            renderItems();
         }
 
-        function renderTabla() {
-            const body = document.getElementById('lista-items');
+        function renderItems() {
+            const body = document.getElementById('pdfTablaBody');
             body.innerHTML = '';
             let subtotal = 0;
 
@@ -235,41 +269,41 @@
                 subtotal += total;
                 body.innerHTML += `
                     <tr>
-                        <td class="text-center"><img src="./Assets/${item.img}" class="w-10 h-10 rounded shadow-sm mx-auto object-cover"></td>
-                        <td class="font-black text-gray-700">${item.n}</td>
-                        <td class="text-center">${item.c}</td>
-                        <td class="text-right">$${item.p.toLocaleString()}</td>
+                        <td class="text-center"><img src="./Assets/${item.img}" class="w-12 h-12 rounded-xl shadow-md mx-auto object-cover border border-white ring-1 ring-gray-100"></td>
+                        <td class="text-gray-800 font-black uppercase text-xs tracking-tighter">${item.n}</td>
+                        <td class="text-center text-emerald-600 font-black">${item.c}</td>
+                        <td class="text-right text-gray-400 font-bold">$${item.p.toLocaleString()}</td>
                         <td class="text-right font-black text-pink-600">$${total.toLocaleString()}</td>
-                        <td class="no-print text-center"><button onclick="eliminar(${i})" class="text-red-400 hover:text-red-600">✕</button></td>
+                        <td class="no-print text-center"><button onclick="borrarItem(${i})" class="text-red-300 hover:text-red-600 transition">✕</button></td>
                     </tr>`;
             });
 
-            const conIva = document.getElementById('ivaCheckbox').checked;
+            const conIva = document.getElementById('ivaCheck').checked;
             const iva = subtotal * 0.16;
-            const totalFinal = conIva ? subtotal + iva : subtotal;
+            const final = conIva ? subtotal + iva : subtotal;
 
-            document.getElementById('pdf-subtotal').innerText = `$${subtotal.toLocaleString()}`;
-            document.getElementById('pdf-iva').innerText = `$${iva.toLocaleString()}`;
-            document.getElementById('pdf-total').innerText = `$${totalFinal.toLocaleString()} MXN`;
+            document.getElementById('pdfSubtotal').innerText = `$${subtotal.toLocaleString('es-MX')}`;
+            document.getElementById('pdfIva').innerText = `$${iva.toLocaleString('es-MX')}`;
+            document.getElementById('pdfTotal').innerText = `$${final.toLocaleString('es-MX')}`;
             
-            if(conIva) document.getElementById('pdf-fila-iva').classList.remove('hidden');
-            else document.getElementById('pdf-fila-iva').classList.add('hidden');
+            if(conIva) document.getElementById('pdfFilaIva').classList.remove('hidden');
+            else document.getElementById('pdfFilaIva').classList.add('hidden');
         }
 
-        function descargar() {
-            if(carrito.length === 0) return alert("Agrega productos primero.");
-            const element = document.getElementById('documento-pdf');
+        function bajarPDF() {
+            if(carrito.length === 0) return alert("El carrito está vacío.");
+            const element = document.getElementById('area-cotizacion');
+            const clienteLabel = document.getElementById('inNombre').value || 'Cotizacion';
+            
             const opt = {
                 margin: 0,
-                filename: `Cotizacion_${document.getElementById('clienteInput').value || 'PielCanela'}.pdf`,
+                filename: `PC_${clienteLabel}.pdf`,
                 image: { type: 'jpeg', quality: 1 },
                 html2canvas: { scale: 2, useCORS: true, letterRendering: true, width: 800 },
                 jsPDF: { unit: 'px', format: [800, 1050], orientation: 'portrait' }
             };
             html2pdf().set(opt).from(element).save();
         }
-
-        function limpiar() { location.reload(); }
     </script>
 </body>
 </html>

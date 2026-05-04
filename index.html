@@ -3,183 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piel Canela - CRM & Cotizador</title>
+    <title>Piel Canela - Cotizador Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+        /* Tipografía Premium tipo Apple/Stripe */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         
-        body { font-family: 'Montserrat', sans-serif; -webkit-font-smoothing: antialiased; background-color: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color: #f1f5f9; }
         
         /* =======================================================
-           REGLAS ESTRICTAS DE PDF (Tamaño Carta Exacto)
+           FORMATO ESTRICTO DEL PDF (Tamaño Carta)
            ======================================================= */
         #hoja-pdf {
-            width: 790px; 
-            background: white;
+            width: 816px; /* 8.5" exactos */
+            min-height: 1056px; /* 11" exactas */
+            background: #ffffff;
             margin: 0 auto;
-            padding: 40px; 
+            padding: 56px 48px; /* Respiración premium (Top/Bottom 56px, Sides 48px) */
             position: relative;
+            color: #0f172a; /* Slate 900 */
         }
 
-        .tabla-elegante { width: 100%; border-collapse: collapse; }
-        .tabla-elegante th { 
-            background-color: #fdf2f8; 
-            color: #be185d; 
-            font-weight: 800; 
+        /* Tabla Estricta y Alineada */
+        .tabla-premium { 
+            width: 100%; 
+            border-collapse: collapse; 
+            table-layout: fixed; /* Fuerza proporciones matemáticas */
+        }
+        .tabla-premium th { 
+            color: #64748b; /* Slate 500 */
+            font-weight: 600; 
             text-transform: uppercase; 
             font-size: 10px; 
-            letter-spacing: 0.05em; 
-            padding: 12px 10px; 
-            border-bottom: 2px solid #fbcfe8; 
+            letter-spacing: 0.1em; 
+            padding: 0 0 16px 0; 
+            border-bottom: 1px solid #e2e8f0; /* Slate 200 */
         }
-        .tabla-elegante td { 
-            padding: 10px 10px; 
-            border-bottom: 1px solid #f3f4f6; 
-            font-size: 12px; 
+        .tabla-premium td { 
+            padding: 24px 0; /* Altura de fila generosa (aire visual) */
+            border-bottom: 1px solid #f1f5f9; /* Slate 100 sutil */
+            font-size: 13px; 
             vertical-align: middle; 
-            color: #374151;
-            font-weight: 500;
         }
         
         tr { page-break-inside: avoid; }
+        .print-bg { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
         .no-print { display: block; }
-        @media print { .no-print { display: none !important; } }
+        @media print { 
+            .no-print { display: none !important; } 
+            #hoja-pdf { padding: 0 !important; border: none !important; box-shadow: none !important; }
+        }
         
-        /* Toggle Switch animado */
-        .dot { transition: transform 0.2s ease-in-out; }
+        .dot { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         input:checked ~ .dot { transform: translateX(100%); }
-        input:checked ~ .bg-toggle { background-color: #10b981; }
-        
-        /* Ocultar secciones dinámicamente */
+        input:checked ~ .bg-toggle { background-color: #ec4899; } /* Pink 500 */
         .seccion-oculta { display: none !important; }
     </style>
 </head>
 <body class="p-4 md:p-8 text-slate-800">
 
     <div class="max-w-[1400px] mx-auto mb-8 flex justify-center no-print">
-        <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 inline-flex gap-2">
-            <button id="btn-tab-cotizador" onclick="cambiarPestana('cotizador')" class="px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-widest transition-all bg-pink-600 text-white shadow-md">
-                Cotizador
-            </button>
-            <button id="btn-tab-clientes" onclick="cambiarPestana('clientes')" class="px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-widest transition-all bg-transparent text-slate-500 hover:bg-slate-50">
-                Base de Datos
-            </button>
+        <div class="bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 inline-flex gap-1">
+            <button id="btn-tab-cotizador" onclick="cambiarPestana('cotizador')" class="px-6 py-2.5 rounded-xl font-bold text-sm uppercase tracking-wider transition-all bg-slate-900 text-white shadow-md">Cotizador</button>
+            <button id="btn-tab-clientes" onclick="cambiarPestana('clientes')" class="px-6 py-2.5 rounded-xl font-bold text-sm uppercase tracking-wider transition-all bg-transparent text-slate-500 hover:text-slate-900">Base de Datos</button>
         </div>
     </div>
 
     <div id="sec-cotizador" class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         <div class="lg:col-span-5 space-y-6 no-print lg:sticky lg:top-8">
-            
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-6 flex items-center gap-2">
-                    <span class="w-2 h-6 bg-pink-500 rounded-full"></span> Datos del Cliente
-                </h2>
-                
+                <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">1. Datos de Venta</h2>
                 <div class="space-y-4">
-                    <select id="clienteSelect" class="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 text-sm font-semibold transition-all" onchange="seleccionarCliente()">
-                        <option value="">-- Seleccionar cliente o escribir manual --</option>
+                    <select id="clienteSelect" class="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-slate-400 text-sm font-semibold transition-all" onchange="seleccionarCliente()">
+                        <option value="">-- Cliente Nuevo / Manual --</option>
                     </select>
-
-                    <input type="text" id="inNombre" placeholder="Nombre completo" class="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none text-sm transition-all" oninput="sincronizar()">
-                    <input type="text" id="inDir" placeholder="Dirección completa" class="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none text-sm transition-all" oninput="sincronizar()">
-                    
+                    <input type="text" id="inNombre" placeholder="Nombre completo" class="w-full h-12 px-4 border border-slate-200 rounded-xl focus:border-slate-400 outline-none text-sm transition-all" oninput="sincronizar()">
+                    <input type="text" id="inDir" placeholder="Dirección completa" class="w-full h-12 px-4 border border-slate-200 rounded-xl focus:border-slate-400 outline-none text-sm transition-all" oninput="sincronizar()">
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="inTel" placeholder="WhatsApp / Tel" class="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none text-sm transition-all" oninput="sincronizar()">
-                        <input type="text" id="inOrden" placeholder="No. Orden (Ej. 001)" class="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none text-sm transition-all" oninput="sincronizar()">
+                        <input type="text" id="inTel" placeholder="Teléfono" class="w-full h-12 px-4 border border-slate-200 rounded-xl focus:border-slate-400 outline-none text-sm transition-all" oninput="sincronizar()">
+                        <input type="text" id="inOrden" placeholder="No. Orden" class="w-full h-12 px-4 border border-slate-200 rounded-xl focus:border-slate-400 outline-none text-sm transition-all" oninput="sincronizar()">
                     </div>
                 </div>
             </div>
 
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-6 flex items-center gap-2">
-                    <span class="w-2 h-6 bg-emerald-500 rounded-full"></span> Agregar Producto
-                </h2>
-                
+                <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">2. Productos</h2>
                 <div class="flex items-center gap-4 mb-4">
-                    <img id="prevImg" src="" class="w-12 h-12 rounded-xl object-cover border border-slate-200 bg-slate-50 shrink-0">
-                    <select id="prodSelect" class="flex-1 h-12 px-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 text-sm font-semibold transition-all" onchange="updatePrev()">
-                    </select>
+                    <img id="prevImg" src="" class="w-12 h-12 rounded-lg object-cover border border-slate-200 shrink-0">
+                    <select id="prodSelect" class="flex-1 h-12 px-4 border border-slate-200 rounded-xl outline-none focus:border-slate-400 text-sm font-medium transition-all" onchange="updatePrev()"></select>
                 </div>
-                
                 <div class="flex gap-4">
-                    <input type="number" id="inCant" value="1" min="1" class="w-24 h-12 px-4 bg-white border border-slate-200 rounded-xl text-center font-black text-slate-700 outline-none focus:border-emerald-500 transition-all">
-                    <button onclick="agregarItem()" class="flex-1 h-12 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors uppercase text-xs tracking-widest shadow-sm">
-                        Añadir a la lista
-                    </button>
+                    <input type="number" id="inCant" value="1" min="1" class="w-24 h-12 px-4 border border-slate-200 rounded-xl text-center font-bold outline-none focus:border-slate-400 transition-all">
+                    <button onclick="agregarItem()" class="flex-1 h-12 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-colors uppercase text-xs tracking-widest">Añadir</button>
                 </div>
             </div>
 
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
-                
                 <div class="flex items-center justify-between">
-                    <span class="text-sm font-bold text-slate-700">Incluir 16% IVA</span>
+                    <span class="text-sm font-semibold text-slate-700">Calcular 16% IVA</span>
                     <label class="inline-flex relative items-center cursor-pointer">
                         <input type="checkbox" id="ivaCheck" class="sr-only" onchange="renderItems()">
-                        <div class="bg-toggle w-12 h-6 bg-slate-300 rounded-full transition-colors"></div>
+                        <div class="bg-toggle w-12 h-6 bg-slate-200 rounded-full transition-colors"></div>
                         <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform"></div>
                     </label>
                 </div>
-
-                <button onclick="descargarPDF()" class="w-full h-14 bg-pink-600 text-white rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-pink-700 transition-all shadow-md flex justify-center items-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <button onclick="descargarPDF()" class="w-full h-14 bg-pink-600 text-white rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-pink-700 transition-all shadow-lg shadow-pink-200 flex justify-center items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     Descargar Cotización
                 </button>
-
-                <button onclick="limpiarCotizacion()" class="w-full h-8 text-slate-400 text-xs font-bold uppercase tracking-wider hover:text-red-500 transition-colors">
-                    Limpiar todo y reiniciar
-                </button>
+                <button onclick="limpiarCotizacion()" class="w-full text-slate-400 text-xs font-bold uppercase tracking-widest hover:text-red-500 transition-colors">Reiniciar todo</button>
             </div>
         </div>
 
-        <div class="lg:col-span-7 bg-slate-200/60 p-4 md:p-8 rounded-3xl shadow-inner border border-slate-200 overflow-x-auto flex justify-center">
+        <div class="lg:col-span-7 bg-slate-200/50 p-6 rounded-3xl shadow-inner border border-slate-200 overflow-x-auto flex justify-center">
             
-            <div id="hoja-pdf" class="shadow-xl rounded-sm flex flex-col">
+            <div id="hoja-pdf" class="shadow-2xl rounded-sm flex flex-col">
                 
-                <div class="flex justify-between items-center border-b-2 border-slate-100 pb-8 mb-8">
-                    <img src="./Assets/logo.png" alt="Piel Canela Logo" class="w-28 h-auto object-contain" onerror="this.src='https://via.placeholder.com/100x100?text=LOGO'">
-                    
+                <div class="flex justify-between items-start mb-16">
+                    <img src="./Assets/logo.png" alt="Piel Canela" class="w-32 h-auto object-contain" onerror="this.src='https://via.placeholder.com/128x64?text=LOGO'">
                     <div class="text-right">
-                        <h1 class="text-3xl font-black text-pink-600 tracking-tight leading-none mb-1">PIEL CANELA</h1>
-                        <p class="text-[10px] font-extrabold text-emerald-600 uppercase tracking-[0.25em] mb-3">Spa & Bronceado</p>
-                        <div class="text-[9px] font-semibold text-slate-500 leading-relaxed uppercase">
-                            Av Guadalupe 6304, Jalisco, Gdl.<br>
+                        <h1 class="text-2xl font-black text-slate-900 tracking-tighter mb-1">PIEL CANELA</h1>
+                        <p class="text-[9px] font-bold text-emerald-600 uppercase tracking-[0.2em] mb-3">Spa & Bronceado</p>
+                        <p class="text-[10px] text-slate-500 leading-relaxed">
+                            Av Guadalupe 6304, Jalisco, Guadalajara<br>
                             Jardines de Chapalita CP 45010<br>
                             WhatsApp: +52 3332508073
-                        </div>
+                        </p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-12 gap-6 mb-8">
-                    <div class="col-span-8 bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                        <p class="text-[9px] font-extrabold text-pink-500 uppercase tracking-widest mb-1.5">Preparado para:</p>
-                        <p id="pdfNombre" class="text-lg font-black text-slate-800 leading-tight">___________________________</p>
-                        <p id="pdfDir" class="text-[11px] font-medium text-slate-500 mt-1">Dirección no especificada</p>
+                <div class="flex justify-between items-end mb-12 border-b border-slate-200 pb-10">
+                    <div class="max-w-[60%]">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3">Preparado para</p>
+                        <h2 id="pdfNombre" class="text-2xl font-black text-slate-900 tracking-tight leading-none mb-2">____________________</h2>
+                        <p id="pdfDir" class="text-xs text-slate-500 font-medium leading-relaxed mb-1">Dirección no especificada</p>
+                        <p id="pdfTel" class="text-xs text-slate-500 font-medium">---</p>
                     </div>
-                    <div class="col-span-4 bg-white p-5 flex flex-col justify-center text-right space-y-3">
-                        <div>
-                            <span class="text-[9px] font-extrabold text-slate-400 uppercase block tracking-wider">Fecha / Orden</span>
-                            <span class="text-xs font-bold text-slate-800 inline-block mt-0.5"><span id="pdfFecha"></span> <span class="text-slate-300 mx-1">|</span> <span id="pdfOrden" class="text-emerald-600">---</span></span>
-                        </div>
-                        <div>
-                            <span class="text-[9px] font-extrabold text-slate-400 uppercase block tracking-wider">Teléfono de Contacto</span>
-                            <span id="pdfTel" class="text-xs font-bold text-slate-800 inline-block mt-0.5">---</span>
-                        </div>
+                    <div class="text-right">
+                        <h3 class="text-[40px] font-black text-slate-100 uppercase tracking-tighter leading-none mb-4">Cotización</h3>
+                        <table class="ml-auto text-xs text-slate-500">
+                            <tr>
+                                <td class="pr-6 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Fecha</td>
+                                <td id="pdfFecha" class="pb-2 font-semibold text-slate-900 text-right">---</td>
+                            </tr>
+                            <tr>
+                                <td class="pr-6 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Orden No.</td>
+                                <td id="pdfOrden" class="pb-2 font-bold text-pink-600 text-right">---</td>
+                            </tr>
+                            <tr>
+                                <td class="pr-6 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Validez</td>
+                                <td class="font-semibold text-slate-900 text-right">30 días</td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
 
                 <div class="flex-1 min-h-[300px]"> 
-                    <table class="tabla-elegante mb-8">
+                    <table class="tabla-premium mb-8">
+                        <colgroup>
+                            <col style="width: 12%;">
+                            <col style="width: 48%;">
+                            <col style="width: 10%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col class="no-print" style="width: 5%;">
+                        </colgroup>
                         <thead>
                             <tr>
-                                <th class="w-16 text-center rounded-tl-xl">Img</th>
-                                <th class="text-left w-auto">Descripción del Producto</th>
-                                <th class="w-16 text-center">Cant.</th>
-                                <th class="w-24 text-right">P. Unit.</th>
-                                <th class="w-28 text-right rounded-tr-xl">Total</th>
-                                <th class="w-8 no-print"></th>
+                                <th class="text-left">Item</th>
+                                <th class="text-left">Descripción</th>
+                                <th class="text-center">Cant.</th>
+                                <th class="text-right">Precio</th>
+                                <th class="text-right">Total</th>
+                                <th class="no-print"></th>
                             </tr>
                         </thead>
                         <tbody id="pdfTablaBody">
@@ -187,375 +186,228 @@
                     </table>
                 </div>
 
-                <div class="mt-auto pt-8 border-t border-slate-100">
-                    <div class="flex justify-end mb-10">
-                        <div class="w-64 space-y-2">
-                            <div class="flex justify-between text-xs px-2 text-slate-500">
-                                <span class="font-bold uppercase">Subtotal</span>
-                                <span id="pdfSubtotal" class="font-black text-slate-800">$0.00</span>
-                            </div>
-                            <div id="pdfFilaIva" class="flex justify-between text-xs px-2 text-emerald-600 hidden pb-2 border-b border-slate-100">
-                                <span class="font-bold uppercase">IVA (16%)</span>
-                                <span id="pdfIva" class="font-black">$0.00</span>
-                            </div>
-                            <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl mt-2 border border-slate-100">
-                                <span class="font-black text-[10px] uppercase tracking-widest text-slate-500">Total Final</span>
-                                <span id="pdfTotal" class="text-xl font-black text-pink-600 tracking-tight">$0.00</span>
-                            </div>
+                <div class="flex justify-end pt-8">
+                    <div class="w-80">
+                        <div class="flex justify-between text-sm mb-3">
+                            <span class="font-medium text-slate-500">Subtotal</span>
+                            <span id="pdfSubtotal" class="font-bold text-slate-900">$0.00</span>
+                        </div>
+                        <div id="pdfFilaIva" class="flex justify-between text-sm mb-4 hidden border-b border-slate-100 pb-4">
+                            <span class="font-medium text-slate-500">IVA (16%)</span>
+                            <span id="pdfIva" class="font-bold text-slate-900">$0.00</span>
+                        </div>
+                        
+                        <div class="print-bg bg-slate-50 p-6 rounded-2xl flex justify-between items-center border border-slate-100 mt-2">
+                            <span class="font-black text-[10px] uppercase tracking-widest text-slate-400">Total a Pagar</span>
+                            <span id="pdfTotal" class="text-3xl font-black text-pink-600 tracking-tight">$0.00</span>
                         </div>
                     </div>
-                    <div class="text-center">
-                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">
-                            Precios expresados en MXN. Válido por 30 días. No incluye envío.
-                        </p>
-                    </div>
+                </div>
+
+                <div class="mt-16 text-center border-t border-slate-100 pt-8">
+                    <p class="text-[10px] text-slate-400 font-medium">
+                        Precios expresados en Pesos Mexicanos (MXN). No incluye gastos de envío a menos que se especifique.<br>
+                        Cualquier duda sobre esta cotización, por favor contáctanos al número provisto.
+                    </p>
                 </div>
 
             </div>
         </div>
     </div>
 
-
     <div id="sec-clientes" class="max-w-[1400px] mx-auto seccion-oculta">
         <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
-            
             <div class="flex justify-between items-end mb-8 border-b border-slate-100 pb-6">
                 <div>
                     <h2 class="text-2xl font-black text-slate-800 tracking-tight">Directorio de Clientes</h2>
                     <p class="text-sm text-slate-500 font-medium mt-1">Guarda, edita y respalda tu información.</p>
                 </div>
                 <div class="flex gap-3">
-                    <button onclick="exportarDB()" class="h-10 px-4 bg-slate-800 text-white rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-slate-900 transition flex items-center gap-2">
-                        ⬇ Exportar Respaldo
-                    </button>
+                    <button onclick="exportarDB()" class="h-10 px-4 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition">⬇ Exportar Respaldo</button>
                     <input type="file" id="importInput" accept=".json" class="hidden" onchange="importarDB(event)">
-                    <button onclick="document.getElementById('importInput').click()" class="h-10 px-4 bg-emerald-100 text-emerald-800 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-emerald-200 transition flex items-center gap-2">
-                        ⬆ Importar
-                    </button>
+                    <button onclick="document.getElementById('importInput').click()" class="h-10 px-4 bg-slate-100 text-slate-800 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 transition">⬆ Importar</button>
                 </div>
             </div>
-
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-1 bg-slate-50 p-6 rounded-2xl border border-slate-200 h-fit">
-                    <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-                        <span class="w-2 h-6 bg-pink-500 rounded-full"></span> Agregar Cliente
-                    </h3>
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Agregar Cliente</h3>
                     <div class="space-y-4">
-                        <input type="text" id="dbNombre" placeholder="Nombre de la empresa o persona" class="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl focus:border-pink-500 outline-none text-sm font-medium">
-                        <input type="text" id="dbTel" placeholder="Teléfono / WhatsApp" class="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl focus:border-pink-500 outline-none text-sm font-medium">
-                        <textarea id="dbDir" placeholder="Dirección completa" class="w-full p-4 bg-white border border-slate-200 rounded-xl focus:border-pink-500 outline-none text-sm font-medium h-24 resize-none"></textarea>
-                        
-                        <button onclick="guardarClienteDB()" class="w-full h-12 bg-pink-600 text-white font-bold rounded-xl hover:bg-pink-700 transition uppercase text-xs tracking-widest shadow-sm">
-                            Guardar Cliente
-                        </button>
+                        <input type="text" id="dbNombre" placeholder="Nombre completo" class="w-full h-12 px-4 border border-slate-200 rounded-xl outline-none text-sm">
+                        <input type="text" id="dbTel" placeholder="Teléfono / WhatsApp" class="w-full h-12 px-4 border border-slate-200 rounded-xl outline-none text-sm">
+                        <textarea id="dbDir" placeholder="Dirección completa" class="w-full p-4 border border-slate-200 rounded-xl outline-none text-sm h-24 resize-none"></textarea>
+                        <button onclick="guardarClienteDB()" class="w-full h-12 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition uppercase text-xs tracking-widest">Guardar Cliente</button>
                     </div>
                 </div>
-
-                <div class="lg:col-span-2">
-                    <div class="overflow-hidden border border-slate-200 rounded-2xl">
-                        <table class="w-full text-left bg-white">
-                            <thead class="bg-slate-100 border-b border-slate-200">
-                                <tr>
-                                    <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Nombre</th>
-                                    <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Teléfono</th>
-                                    <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Dirección</th>
-                                    <th class="p-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider w-16">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dbTablaClientes" class="divide-y divide-slate-100 text-sm">
-                                </tbody>
-                        </table>
-                    </div>
+                <div class="lg:col-span-2 overflow-hidden border border-slate-200 rounded-2xl">
+                    <table class="w-full text-left bg-white">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nombre</th>
+                                <th class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Teléfono</th>
+                                <th class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dirección</th>
+                                <th class="p-4 w-16"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="dbTablaClientes" class="divide-y divide-slate-100 text-sm"></tbody>
+                    </table>
                 </div>
             </div>
-
         </div>
     </div>
 
 
     <script>
-        /* ----------------------------------------------------
-           1. BASE DE DATOS LOCAL (LOCALSTORAGE)
-           ---------------------------------------------------- */
-        
-        // Clientes por defecto (si la memoria está vacía)
+        // --- BASE DE DATOS Y ESTADO ---
         const CLIENTES_DEFAULT = [
-            { nombre: 'Shams Bronceado Natural', tel: '5539174811', dir: 'Calle Gutenberg 194, CDMX' },
-            { nombre: 'Mithra Sun&Spa', tel: '5619859660', dir: 'Ciudad de México, CDMX' },
-            { nombre: 'The Temple Bronze', tel: '9983936134', dir: 'Blvd Kukulcan km 12, Cancún Q.R.' },
-            { nombre: 'Katiuska del Valle', tel: '8134426483', dir: 'Monterrey, N.L.' }
+            { nombre: 'Shams Bronceado Natural', tel: '5539174811', dir: 'Calle Gutenberg 194, 11590 CDMX' },
+            { nombre: 'Mithra Sun&Spa', tel: '5619859660', dir: 'Ciudad de México, CDMX' }
         ];
-
         let DB_CLIENTES = [];
 
-        function cargarDB() {
-            const dataGuardada = localStorage.getItem('piel_canela_clientes');
-            if(dataGuardada) {
-                DB_CLIENTES = JSON.parse(dataGuardada);
-            } else {
-                DB_CLIENTES = [...CLIENTES_DEFAULT]; // Copia de los default
-                guardarDB();
-            }
-            DB_CLIENTES.sort((a,b) => a.nombre.localeCompare(b.nombre));
-        }
-
-        function guardarDB() {
-            localStorage.setItem('piel_canela_clientes', JSON.stringify(DB_CLIENTES));
-            actualizarUI_DB();
-        }
-
-        /* ----------------------------------------------------
-           2. INICIALIZACIÓN GLOBAL
-           ---------------------------------------------------- */
-        
         const PRODUCTOS = [
             { id: 1, n: 'Café Fit (850g)', p: 1498, img: 'cafe-fit.jpg' },
             { id: 2, n: 'Choco Paty (850g)', p: 1340, img: 'choco-paty.jpg' },
             { id: 3, n: 'Morango Bronze (850g)', p: 1340, img: 'morango-bronze.jpg' },
-            { id: 4, n: 'Pêssego Bronze (850g)', p: 1340, img: 'pessego-bronze.jpg' },
-            { id: 5, n: 'Potência 3.0 (850g)', p: 2243, img: 'potencia-3.jpg' },
-            { id: 6, n: 'Potência Ultra (1kg)', p: 1980, img: 'potencia-ultra.jpg' },
-            { id: 7, n: 'Ametista UV 1 (900ml)', p: 2113, img: 'ametista-uv-1.jpg' },
-            { id: 8, n: 'Ametista UV II (900ml)', p: 1440, img: 'ametista-uv-2.jpg' },
-            { id: 9, n: 'Cinta Vermelha-c9', p: 150, img: 'vermelha-c9.jpg' },
-            { id: 10, n: 'Barbie-c9', p: 150, img: 'barbie-c9.jpg' },
-            { id: 11, n: 'Animal Print-c9', p: 150, img: 'animal-print-c9.jpg' },
-            { id: 12, n: 'Óleo Iluminador (450ml)', p: 1092, img: 'oleo-iluminador.jpg' }
+            { id: 4, n: 'Potência 3.0 (850g)', p: 2243, img: 'potencia-3.jpg' },
+            { id: 5, n: 'Ametista UV II (900ml)', p: 1440, img: 'ametista-uv-2.jpg' },
+            { id: 6, n: 'Animal Print-c9', p: 150, img: 'animal-print-c9.jpg' },
+            { id: 7, n: 'Óleo Iluminador (450ml)', p: 1092, img: 'oleo-iluminador.jpg' }
         ];
-
         let carrito = [];
 
+        // --- INICIALIZACIÓN ---
         window.onload = () => {
             document.getElementById('pdfFecha').innerText = new Date().toLocaleDateString('es-MX');
-            
-            cargarDB(); // Carga de memoria
-
+            cargarDB();
             const pSel = document.getElementById('prodSelect');
             PRODUCTOS.forEach((p, i) => pSel.add(new Option(`${p.n} - $${p.p.toLocaleString('es-MX')}`, i)));
             updatePrev();
         };
 
-        /* ----------------------------------------------------
-           3. NAVEGACIÓN (TABS)
-           ---------------------------------------------------- */
+        // --- TABS ---
         function cambiarPestana(tab) {
-            const secCotizador = document.getElementById('sec-cotizador');
-            const secClientes = document.getElementById('sec-clientes');
+            const secCot = document.getElementById('sec-cotizador');
+            const secCli = document.getElementById('sec-clientes');
             const btnCot = document.getElementById('btn-tab-cotizador');
             const btnCli = document.getElementById('btn-tab-clientes');
 
             if(tab === 'cotizador') {
-                secCotizador.classList.remove('seccion-oculta');
-                secClientes.classList.add('seccion-oculta');
-                
-                btnCot.className = "px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-widest transition-all bg-pink-600 text-white shadow-md";
-                btnCli.className = "px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-widest transition-all bg-transparent text-slate-500 hover:bg-slate-50";
-                
-                actualizarUI_DB(); // Refrescar dropdown del cotizador
+                secCot.classList.remove('seccion-oculta'); secCli.classList.add('seccion-oculta');
+                btnCot.className = "px-6 py-2.5 rounded-xl font-bold text-sm uppercase tracking-wider transition-all bg-slate-900 text-white shadow-md";
+                btnCli.className = "px-6 py-2.5 rounded-xl font-bold text-sm uppercase tracking-wider transition-all bg-transparent text-slate-500 hover:text-slate-900";
+                actualizarUI_DB();
             } else {
-                secCotizador.classList.add('seccion-oculta');
-                secClientes.classList.remove('seccion-oculta');
-                
-                btnCli.className = "px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-widest transition-all bg-pink-600 text-white shadow-md";
-                btnCot.className = "px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-widest transition-all bg-transparent text-slate-500 hover:bg-slate-50";
+                secCot.classList.add('seccion-oculta'); secCli.classList.remove('seccion-oculta');
+                btnCli.className = "px-6 py-2.5 rounded-xl font-bold text-sm uppercase tracking-wider transition-all bg-slate-900 text-white shadow-md";
+                btnCot.className = "px-6 py-2.5 rounded-xl font-bold text-sm uppercase tracking-wider transition-all bg-transparent text-slate-500 hover:text-slate-900";
             }
         }
 
-        /* ----------------------------------------------------
-           4. LÓGICA: BASE DE DATOS
-           ---------------------------------------------------- */
+        // --- DB FUNCIONES ---
+        function cargarDB() {
+            const data = localStorage.getItem('piel_canela_db');
+            DB_CLIENTES = data ? JSON.parse(data) : [...CLIENTES_DEFAULT];
+            DB_CLIENTES.sort((a,b) => a.nombre.localeCompare(b.nombre));
+            actualizarUI_DB();
+        }
+        function guardarDB() { localStorage.setItem('piel_canela_db', JSON.stringify(DB_CLIENTES)); actualizarUI_DB(); }
         function actualizarUI_DB() {
-            // Actualizar Selector en el Cotizador
             const cSel = document.getElementById('clienteSelect');
-            cSel.innerHTML = '<option value="">-- Seleccionar cliente o escribir manual --</option>';
+            cSel.innerHTML = '<option value="">-- Seleccionar cliente o manual --</option>';
             DB_CLIENTES.forEach((c, i) => cSel.add(new Option(c.nombre, i)));
-
-            // Actualizar Tabla en la pestaña Base de Datos
+            
             const tbody = document.getElementById('dbTablaClientes');
             tbody.innerHTML = '';
             DB_CLIENTES.forEach((c, i) => {
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-4 font-bold text-slate-800">${c.nombre}</td>
-                        <td class="p-4 text-slate-600 font-medium">${c.tel}</td>
-                        <td class="p-4 text-slate-500 truncate max-w-xs">${c.dir}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="borrarClienteDB(${i})" class="text-red-400 hover:text-red-600 font-bold p-2 bg-red-50 rounded-lg transition-colors">✕</button>
-                        </td>
-                    </tr>
-                `;
+                    <tr class="hover:bg-slate-50"><td class="p-4 font-bold text-slate-800">${c.nombre}</td><td class="p-4 text-slate-600">${c.tel}</td><td class="p-4 text-slate-500 truncate max-w-xs">${c.dir}</td>
+                    <td class="p-4 text-center"><button onclick="borrarClienteDB(${i})" class="text-slate-400 hover:text-red-500 font-bold p-2 transition-colors">✕</button></td></tr>`;
             });
         }
-
         function guardarClienteDB() {
             const nom = document.getElementById('dbNombre').value.trim();
-            const tel = document.getElementById('dbTel').value.trim();
-            const dir = document.getElementById('dbDir').value.trim();
-
-            if(!nom) return alert("El nombre es obligatorio.");
-
-            DB_CLIENTES.push({ nombre: nom, tel: tel, dir: dir });
-            DB_CLIENTES.sort((a,b) => a.nombre.localeCompare(b.nombre));
-            guardarDB();
-
-            // Limpiar inputs
-            document.getElementById('dbNombre').value = '';
-            document.getElementById('dbTel').value = '';
-            document.getElementById('dbDir').value = '';
+            if(!nom) return alert("Nombre obligatorio.");
+            DB_CLIENTES.push({ nombre: nom, tel: document.getElementById('dbTel').value.trim(), dir: document.getElementById('dbDir').value.trim() });
+            guardarDB(); document.getElementById('dbNombre').value = ''; document.getElementById('dbTel').value = ''; document.getElementById('dbDir').value = '';
         }
-
-        function borrarClienteDB(idx) {
-            if(confirm("¿Estás seguro de borrar este cliente?")) {
-                DB_CLIENTES.splice(idx, 1);
-                guardarDB();
-            }
-        }
-
-        // ================= EXPORTAR / IMPORTAR =================
+        function borrarClienteDB(idx) { if(confirm("¿Borrar cliente?")) { DB_CLIENTES.splice(idx, 1); guardarDB(); } }
         function exportarDB() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB_CLIENTES, null, 2));
-            const btnDescarga = document.createElement('a');
-            btnDescarga.setAttribute("href", dataStr);
-            btnDescarga.setAttribute("download", "Respaldo_Clientes_PielCanela.json");
-            document.body.appendChild(btnDescarga);
-            btnDescarga.click();
-            btnDescarga.remove();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB_CLIENTES));
+            const a = document.createElement('a'); a.href = dataStr; a.download = "PielCanela_DB.json"; document.body.appendChild(a); a.click(); a.remove();
         }
-
-        function importarDB(event) {
-            const file = event.target.files[0];
-            if(!file) return;
-
+        function importarDB(e) {
+            const file = e.target.files[0]; if(!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const datosImportados = JSON.parse(e.target.result);
-                    if(Array.isArray(datosImportados)) {
-                        DB_CLIENTES = datosImportados;
-                        guardarDB();
-                        alert("¡Base de datos restaurada con éxito!");
-                    } else {
-                        alert("El archivo no tiene el formato correcto.");
-                    }
-                } catch (error) {
-                    alert("Error al leer el archivo JSON.");
-                }
-            };
+            reader.onload = function(e) { DB_CLIENTES = JSON.parse(e.target.result); guardarDB(); alert("Restaurado."); };
             reader.readAsText(file);
         }
 
-        /* ----------------------------------------------------
-           5. LÓGICA: COTIZADOR Y PDF
-           ---------------------------------------------------- */
+        // --- COTIZADOR FUNCIONES ---
         function seleccionarCliente() {
             const idx = document.getElementById('clienteSelect').value;
-            if (idx !== "") {
-                const c = DB_CLIENTES[idx];
-                document.getElementById('inNombre').value = c.nombre;
-                document.getElementById('inDir').value = c.dir;
-                document.getElementById('inTel').value = c.tel;
-            } else {
-                document.getElementById('inNombre').value = "";
-                document.getElementById('inDir').value = "";
-                document.getElementById('inTel').value = "";
-            }
+            if (idx !== "") { const c = DB_CLIENTES[idx]; document.getElementById('inNombre').value = c.nombre; document.getElementById('inDir').value = c.dir; document.getElementById('inTel').value = c.tel; } 
+            else { document.getElementById('inNombre').value = ""; document.getElementById('inDir').value = ""; document.getElementById('inTel').value = ""; }
             sincronizar();
         }
-
         function sincronizar() {
-            document.getElementById('pdfNombre').innerText = document.getElementById('inNombre').value || '___________________________';
+            document.getElementById('pdfNombre').innerText = document.getElementById('inNombre').value || '____________________';
             document.getElementById('pdfDir').innerText = document.getElementById('inDir').value || 'Dirección no especificada';
             document.getElementById('pdfTel').innerText = document.getElementById('inTel').value || '---';
-            document.getElementById('pdfOrden').innerText = document.getElementById('inOrden').value || 'S/N';
+            document.getElementById('pdfOrden').innerText = document.getElementById('inOrden').value || '---';
         }
-
-        function updatePrev() {
-            const pSel = document.getElementById('prodSelect');
-            const p = PRODUCTOS[pSel.value];
-            if(p) document.getElementById('prevImg').src = `./Assets/${p.img}`;
-        }
-
+        function updatePrev() { const p = PRODUCTOS[document.getElementById('prodSelect').value]; if(p) document.getElementById('prevImg').src = `./Assets/${p.img}`; }
+        
         function agregarItem() {
-            const selectP = document.getElementById('prodSelect');
-            const p = PRODUCTOS[selectP.value];
-            if(!p) return;
-            const cant = parseInt(document.getElementById('inCant').value);
-            if(cant < 1) return;
-
+            const p = PRODUCTOS[document.getElementById('prodSelect').value]; if(!p) return;
+            const cant = parseInt(document.getElementById('inCant').value); if(cant < 1) return;
             const existe = carrito.find(item => item.id === p.id);
             if (existe) { existe.c += cant; } else { carrito.push({ ...p, c: cant }); }
-            renderItems();
-            document.getElementById('inCant').value = 1;
+            renderItems(); document.getElementById('inCant').value = 1;
         }
-
-        function borrarItemLista(idx) {
-            carrito.splice(idx, 1);
-            renderItems();
-        }
+        function borrarItemLista(idx) { carrito.splice(idx, 1); renderItems(); }
 
         function renderItems() {
-            const body = document.getElementById('pdfTablaBody');
-            body.innerHTML = '';
+            const body = document.getElementById('pdfTablaBody'); body.innerHTML = '';
             let subtotal = 0;
 
             carrito.forEach((item, i) => {
-                const total = item.p * item.c;
-                subtotal += total;
+                const total = item.p * item.c; subtotal += total;
+                /* === FILA DE TABLA PREMIUM === */
                 body.innerHTML += `
                     <tr>
-                        <td class="text-center">
-                            <img src="./Assets/${item.img}" class="w-10 h-10 rounded-lg object-cover mx-auto border border-slate-200" onerror="this.style.display='none'">
+                        <td class="pr-4">
+                            <img src="./Assets/${item.img}" class="w-12 h-12 rounded-lg object-cover border border-slate-200" onerror="this.style.display='none'">
                         </td>
-                        <td class="font-bold text-slate-800">${item.n}</td>
-                        <td class="text-center font-black text-slate-700">${item.c}</td>
+                        <td class="font-bold text-slate-800 pr-4">${item.n}</td>
+                        <td class="text-center font-bold text-slate-600">${item.c}</td>
                         <td class="text-right text-slate-500 font-medium">$${item.p.toLocaleString('es-MX')}</td>
-                        <td class="text-right font-black text-slate-800">$${total.toLocaleString('es-MX')}</td>
+                        <td class="text-right font-bold text-slate-900">$${total.toLocaleString('es-MX')}</td>
                         <td class="no-print text-center">
-                            <button onclick="borrarItemLista(${i})" class="text-red-400 hover:text-red-600 bg-red-50 w-8 h-8 rounded-lg flex items-center justify-center transition-colors mx-auto font-bold">✕</button>
+                            <button onclick="borrarItemLista(${i})" class="text-slate-300 hover:text-red-500 font-bold transition-colors">✕</button>
                         </td>
                     </tr>`;
             });
 
             const conIva = document.getElementById('ivaCheck').checked;
             const iva = subtotal * 0.16;
-            const final = conIva ? subtotal + iva : subtotal;
-
             document.getElementById('pdfSubtotal').innerText = `$${subtotal.toLocaleString('es-MX')}`;
             document.getElementById('pdfIva').innerText = `$${iva.toLocaleString('es-MX')}`;
-            document.getElementById('pdfTotal').innerText = `$${final.toLocaleString('es-MX')}`;
-            
-            if(conIva) document.getElementById('pdfFilaIva').classList.remove('hidden');
-            else document.getElementById('pdfFilaIva').classList.add('hidden');
+            document.getElementById('pdfTotal').innerText = `$${(conIva ? subtotal + iva : subtotal).toLocaleString('es-MX')}`;
+            conIva ? document.getElementById('pdfFilaIva').classList.remove('hidden') : document.getElementById('pdfFilaIva').classList.add('hidden');
         }
+        function limpiarCotizacion() { carrito = []; document.getElementById('clienteSelect').value=''; document.getElementById('inNombre').value=''; document.getElementById('inDir').value=''; document.getElementById('inTel').value=''; document.getElementById('inOrden').value=''; document.getElementById('ivaCheck').checked=false; sincronizar(); renderItems(); }
 
-        function limpiarCotizacion() {
-            carrito = [];
-            document.getElementById('clienteSelect').value = '';
-            document.getElementById('inNombre').value = '';
-            document.getElementById('inDir').value = '';
-            document.getElementById('inTel').value = '';
-            document.getElementById('inOrden').value = '';
-            document.getElementById('ivaCheck').checked = false;
-            sincronizar();
-            renderItems();
-        }
-
+        // --- DESCARGA PDF ---
         function descargarPDF() {
-            if(carrito.length === 0) return alert("Agrega al menos un producto a la cotización.");
-            
-            const element = document.getElementById('hoja-pdf');
-            const clienteLabel = document.getElementById('inNombre').value || 'Cotizacion';
-            const ordenLabel = document.getElementById('inOrden').value || 'SN';
-            
+            if(carrito.length === 0) return alert("Agrega al menos un producto.");
             const opt = {
-                margin:       0,
-                filename:     `PC_${ordenLabel}_${clienteLabel}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                margin: 0,
+                filename: `PC_${document.getElementById('inOrden').value || 'SN'}_${document.getElementById('inNombre').value || 'Coti'}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
-            
-            html2pdf().set(opt).from(element).save();
+            html2pdf().set(opt).from(document.getElementById('hoja-pdf')).save();
         }
     </script>
 </body>

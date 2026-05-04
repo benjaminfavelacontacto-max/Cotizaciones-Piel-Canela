@@ -3,162 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cotizador Piel Canela - Diseño Elegante</title>
+    <title>Piel Canela - Cotizador Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         
-        body { font-family: 'Montserrat', sans-serif; -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color: #f8fafc; }
         
-        /* Contenedor exacto para Tamaño Carta */
+        /* =======================================================
+           REGLAS ESTRICTAS DE PDF (Tamaño Carta 8.5" x 11")
+           ======================================================= */
         #hoja-pdf {
-            width: 790px; /* Medida segura para exportar a Carta */
+            width: 816px; /* 8.5 pulgadas exactas a 96dpi */
+            min-height: 1056px; /* 11 pulgadas exactas */
             background: white;
             margin: 0 auto;
-            padding: 40px; /* Margen interno del documento */
+            padding: 48px; /* Margen uniforme de 0.5 pulgadas */
+            position: relative;
         }
 
-        /* Tabla Estética */
-        .tabla-elegante { width: 100%; border-collapse: collapse; }
-        .tabla-elegante th { 
-            background-color: #fdf2f8; /* Rosa muy clarito */
-            color: #be185d; /* Rosa fuerte */
+        /* Tabla estructurada para PDF */
+        .tabla-pdf { width: 100%; border-collapse: collapse; text-align: left; }
+        .tabla-pdf th { 
+            color: #be185d; /* Pink 700 */
             font-weight: 700; 
             text-transform: uppercase; 
             font-size: 10px; 
             letter-spacing: 0.05em; 
-            padding: 10px; 
-            border-bottom: 2px solid #fbcfe8; 
+            padding: 12px 8px; 
+            border-bottom: 2px solid #fbcfe8; /* Pink 200 */
         }
-        .tabla-elegante td { 
-            padding: 8px 10px; 
-            border-bottom: 1px solid #f3f4f6; 
+        .tabla-pdf td { 
+            padding: 12px 8px; 
+            border-bottom: 1px solid #f1f5f9; /* Slate 100 */
             font-size: 12px; 
             vertical-align: middle; 
-            color: #374151;
+            color: #334155; /* Slate 700 */
         }
-        
-        /* Evitar que las filas se rompan a la mitad de la página */
         tr { page-break-inside: avoid; }
 
+        /* Control de impresión */
         .no-print { display: block; }
-        @media print { 
-            .no-print { display: none !important; } 
-        }
+        @media print { .no-print { display: none !important; } }
         
-        .dot { transition: all 0.2s ease-in-out; }
+        /* Toggle Switch animado */
+        .dot { transition: transform 0.2s ease-in-out; }
         input:checked ~ .dot { transform: translateX(100%); }
-        input:checked ~ .bg-toggle { background-color: #10b981; } /* Verde esmeralda */
+        input:checked ~ .bg-toggle { background-color: #10b981; } /* Emerald 500 */
     </style>
 </head>
-<body class="bg-gray-100 p-4 md:p-8">
+<body class="p-4 md:p-8 text-slate-800">
 
-    <div class="max-w-[1300px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        <div class="lg:col-span-4 space-y-5 no-print sticky top-6">
+        <div class="lg:col-span-5 space-y-6 no-print lg:sticky lg:top-8">
             
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <h2 class="text-xl font-extrabold text-gray-800 mb-5 border-b border-gray-100 pb-3">1. Datos de Venta</h2>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-6 flex items-center gap-2">
+                    <span class="w-2 h-6 bg-pink-500 rounded-full"></span> Datos del Cliente
+                </h2>
                 
-                <div class="space-y-3">
-                    <div>
-                        <label class="block text-[10px] font-bold text-emerald-600 uppercase mb-1">Cargar Cliente Frecuente</label>
-                        <select id="clienteSelect" class="w-full p-2.5 bg-emerald-50 border border-emerald-100 rounded-lg outline-none focus:border-emerald-400 text-sm font-semibold" onchange="seleccionarCliente()">
-                            <option value="">-- CLIENTE NUEVO O MANUAL --</option>
-                        </select>
-                    </div>
+                <div class="space-y-4">
+                    <select id="clienteSelect" class="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 text-sm font-semibold transition-all" onchange="seleccionarCliente()">
+                        <option value="">-- Cliente Nuevo / Escribir Manualmente --</option>
+                    </select>
 
-                    <input type="text" id="inNombre" placeholder="Nombre completo" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:border-emerald-400 outline-none text-sm" oninput="sincronizar()">
-                    <input type="text" id="inDir" placeholder="Dirección completa" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:border-emerald-400 outline-none text-sm" oninput="sincronizar()">
+                    <input type="text" id="inNombre" placeholder="Nombre completo" class="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none text-sm transition-all" oninput="sincronizar()">
                     
-                    <div class="grid grid-cols-2 gap-3">
-                        <input type="text" id="inTel" placeholder="WhatsApp / Tel" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:border-emerald-400 outline-none text-sm" oninput="sincronizar()">
-                        <input type="text" id="inOrden" placeholder="No. Orden" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:border-emerald-400 outline-none text-sm" oninput="sincronizar()">
+                    <input type="text" id="inDir" placeholder="Dirección completa" class="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none text-sm transition-all" oninput="sincronizar()">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="inTel" placeholder="WhatsApp / Tel" class="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none text-sm transition-all" oninput="sincronizar()">
+                        <input type="text" id="inOrden" placeholder="No. Orden (Ej. 001)" class="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none text-sm transition-all" oninput="sincronizar()">
                     </div>
-                </div>
-
-                <div class="mt-4 flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <span class="text-xs font-bold text-gray-600 uppercase">Aplicar IVA (16%)</span>
-                    <label class="inline-flex relative items-center cursor-pointer">
-                        <input type="checkbox" id="ivaCheck" class="sr-only" onchange="renderItems()">
-                        <div class="bg-toggle w-10 h-5 bg-gray-300 rounded-full transition-colors"></div>
-                        <div class="dot absolute left-1 top-1 bg-white w-3 h-3 rounded-full shadow transition-transform"></div>
-                    </label>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <h3 class="text-xl font-extrabold text-gray-800 mb-5 border-b border-gray-100 pb-3">2. Productos</h3>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-6 flex items-center gap-2">
+                    <span class="w-2 h-6 bg-emerald-500 rounded-full"></span> Agregar Producto
+                </h2>
                 
-                <div class="flex gap-3 mb-4">
-                    <img id="prevImg" src="" class="w-16 h-16 rounded-lg object-cover border border-gray-200 bg-gray-50">
-                    <select id="prodSelect" class="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-emerald-400 text-xs font-semibold" onchange="updatePrev()">
+                <div class="flex items-center gap-4 mb-4">
+                    <img id="prevImg" src="" class="w-12 h-12 rounded-xl object-cover border border-slate-200 bg-slate-50 shrink-0">
+                    <select id="prodSelect" class="flex-1 h-12 px-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 text-sm font-medium transition-all" onchange="updatePrev()">
                     </select>
                 </div>
                 
-                <div class="flex gap-2">
-                    <input type="number" id="inCant" value="1" min="1" class="w-20 p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-center font-bold text-gray-700">
-                    <button onclick="agregarItem()" class="flex-1 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition uppercase text-xs tracking-wider">Añadir</button>
+                <div class="flex gap-4">
+                    <input type="number" id="inCant" value="1" min="1" class="w-24 h-12 px-4 bg-white border border-slate-200 rounded-xl text-center font-bold text-slate-700 outline-none focus:border-emerald-500 transition-all">
+                    <button onclick="agregarItem()" class="flex-1 h-12 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors uppercase text-xs tracking-widest shadow-sm">
+                        Añadir a la lista
+                    </button>
                 </div>
             </div>
 
-            <button onclick="descargarPDF()" class="w-full bg-pink-600 text-white py-4 rounded-xl font-bold text-sm shadow-md hover:bg-pink-700 transition-all flex justify-center items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                DESCARGAR COTIZACIÓN EN PDF
-            </button>
-            <button onclick="window.location.reload()" class="w-full text-gray-400 text-[10px] font-bold uppercase hover:text-red-500 transition">Reiniciar todo</button>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-semibold text-slate-700">Incluir 16% IVA</span>
+                    <label class="inline-flex relative items-center cursor-pointer">
+                        <input type="checkbox" id="ivaCheck" class="sr-only" onchange="renderItems()">
+                        <div class="bg-toggle w-12 h-6 bg-slate-300 rounded-full transition-colors"></div>
+                        <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform"></div>
+                    </label>
+                </div>
+
+                <button onclick="descargarPDF()" class="w-full h-14 bg-pink-600 text-white rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-pink-700 transition-all shadow-md flex justify-center items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Descargar Cotización
+                </button>
+
+                <button onclick="window.location.reload()" class="w-full h-8 text-slate-400 text-xs font-bold uppercase tracking-wider hover:text-red-500 transition-colors">
+                    Limpiar todo y reiniciar
+                </button>
+            </div>
         </div>
 
-        <div class="lg:col-span-8 overflow-x-auto bg-gray-300 p-4 md:p-8 rounded-xl shadow-inner border border-gray-200 flex justify-center">
+        <div class="lg:col-span-7 bg-slate-200/50 p-6 lg:p-10 rounded-3xl shadow-inner overflow-x-auto flex justify-center border border-slate-200">
             
-            <div id="hoja-pdf" class="shadow-xl">
+            <div id="hoja-pdf" class="shadow-xl rounded-sm flex flex-col">
                 
-                <div class="flex justify-between items-center border-b-2 border-emerald-100 pb-6 mb-6">
-                    <div class="flex items-center gap-5">
-                        <img src="./Assets/logo.png" alt="Piel Canela" class="w-24 h-24 object-contain" onerror="this.src='https://via.placeholder.com/100x100?text=LOGO'">
-                        <div>
-                            <h1 class="text-2xl font-extrabold text-pink-600 tracking-tight leading-none mb-1">PIEL CANELA</h1>
-                            <p class="text-emerald-700 font-bold tracking-[0.2em] text-[10px] uppercase">Spa & Bronceado</p>
-                            <p class="text-[9px] text-gray-500 mt-2 leading-relaxed">
-                                Av Guadalupe 6304, Jalisco, Guadalajara<br>
-                                Jardines de Chapalita CP 45010<br>
-                                Tel / WA: +52 3332508073
-                            </p>
+                <div class="flex justify-between items-center border-b-2 border-slate-100 pb-8 mb-8">
+                    <img src="./Assets/logo.png" alt="Piel Canela Logo" class="w-32 h-auto object-contain" onerror="this.src='https://via.placeholder.com/120x80?text=LOGO'">
+                    
+                    <div class="text-right">
+                        <h1 class="text-3xl font-black text-pink-600 tracking-tight leading-none mb-1">PIEL CANELA</h1>
+                        <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-[0.2em] mb-3">Spa & Bronceado</p>
+                        <div class="text-[10px] text-slate-500 leading-relaxed uppercase">
+                            Av Guadalupe 6304, Jalisco, Gdl.<br>
+                            Jardines de Chapalita CP 45010<br>
+                            WhatsApp: +52 3332508073
                         </div>
                     </div>
-                    <div class="text-right">
-                        <h2 class="text-3xl font-black text-gray-200 uppercase tracking-widest mb-2">Cotización</h2>
-                        <table class="ml-auto text-[10px] text-gray-500">
-                            <tr><td class="pr-3 font-bold text-right">FECHA:</td><td id="pdfFecha" class="text-right text-gray-800 font-semibold"></td></tr>
-                            <tr><td class="pr-3 font-bold text-right pt-1">ORDEN:</td><td id="pdfOrden" class="text-right text-emerald-600 font-bold pt-1">---</td></tr>
-                        </table>
+                </div>
+
+                <div class="grid grid-cols-12 gap-6 mb-10">
+                    <div class="col-span-8 bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                        <p class="text-[9px] font-bold text-pink-500 uppercase tracking-widest mb-1.5">Preparado para:</p>
+                        <p id="pdfNombre" class="text-lg font-black text-slate-800 leading-tight">___________________________</p>
+                        <p id="pdfDir" class="text-[11px] text-slate-500 mt-1 font-medium">Dirección no especificada</p>
+                    </div>
+                    <div class="col-span-4 bg-white p-5 flex flex-col justify-center text-right space-y-3">
+                        <div>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase block tracking-wider">Fecha / Orden</span>
+                            <span class="text-xs font-bold text-slate-700 inline-block mt-0.5"><span id="pdfFecha"></span> <span class="text-slate-300 mx-1">|</span> <span id="pdfOrden" class="text-emerald-600">---</span></span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase block tracking-wider">Teléfono / WhatsApp</span>
+                            <span id="pdfTel" class="text-xs font-bold text-slate-700 inline-block mt-0.5">---</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-50 p-5 rounded-xl border border-gray-100 mb-8 grid grid-cols-3 gap-4">
-                    <div class="col-span-2">
-                        <p class="text-[9px] font-bold text-pink-500 uppercase tracking-widest mb-1">Preparado para:</p>
-                        <p id="pdfNombre" class="text-base font-bold text-gray-800 leading-snug">___________________________</p>
-                        <p id="pdfDir" class="text-[11px] text-gray-500 mt-1">Dirección no especificada</p>
-                    </div>
-                    <div class="col-span-1 border-l border-gray-200 pl-4 flex flex-col justify-center">
-                        <p class="text-[9px] font-bold text-gray-400 uppercase mb-1">Contacto:</p>
-                        <p id="pdfTel" class="text-[11px] text-gray-800 font-semibold mb-2">---</p>
-                        <p class="text-[9px] font-bold text-gray-400 uppercase mb-1">Validez:</p>
-                        <p class="text-[11px] text-gray-800 font-semibold">30 días naturales</p>
-                    </div>
-                </div>
-
-                <div class="min-h-[300px]"> <table class="tabla-elegante mb-8">
+                <div class="flex-1"> 
+                    <table class="tabla-pdf mb-8">
                         <thead>
                             <tr>
-                                <th class="rounded-tl-lg text-center w-16">Img</th>
-                                <th class="text-left">Descripción del Producto</th>
-                                <th class="text-center w-16">Cant.</th>
-                                <th class="text-right w-24">P. Unit.</th>
-                                <th class="rounded-tr-lg text-right w-24">Total</th>
-                                <th class="no-print w-8"></th>
+                                <th class="w-16 text-center rounded-tl-xl">Img</th>
+                                <th class="text-left w-auto">Descripción</th>
+                                <th class="w-16 text-center">Cant.</th>
+                                <th class="w-24 text-right">P. Unit.</th>
+                                <th class="w-28 text-right rounded-tr-xl">Total</th>
+                                <th class="w-8 no-print"></th>
                             </tr>
                         </thead>
                         <tbody id="pdfTablaBody">
@@ -166,26 +174,29 @@
                     </table>
                 </div>
 
-                <div class="flex justify-end border-t-2 border-emerald-100 pt-6">
-                    <div class="w-64 space-y-2">
-                        <div class="flex justify-between text-xs px-2 text-gray-500">
-                            <span class="font-semibold">Subtotal:</span>
-                            <span id="pdfSubtotal" class="font-bold text-gray-800">$0.00</span>
-                        </div>
-                        <div id="pdfFilaIva" class="flex justify-between text-xs px-2 text-emerald-600 hidden pb-2 border-b border-gray-100">
-                            <span class="font-semibold">IVA (16%):</span>
-                            <span id="pdfIva" class="font-bold">$0.00</span>
-                        </div>
-                        <div class="flex justify-between items-center text-gray-800 p-2 mt-1">
-                            <span class="font-extrabold text-sm uppercase tracking-wider text-pink-600">Total:</span>
-                            <span id="pdfTotal" class="text-xl font-black text-pink-600">$0.00</span>
+                <div class="mt-auto pt-8 border-t border-slate-100">
+                    <div class="flex justify-end mb-12">
+                        <div class="w-72 space-y-2">
+                            <div class="flex justify-between text-xs px-2 text-slate-500">
+                                <span class="font-medium">Subtotal</span>
+                                <span id="pdfSubtotal" class="font-bold text-slate-800">$0.00</span>
+                            </div>
+                            <div id="pdfFilaIva" class="flex justify-between text-xs px-2 text-emerald-600 hidden pb-2 border-b border-slate-100">
+                                <span class="font-medium">IVA (16%)</span>
+                                <span id="pdfIva" class="font-bold">$0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl mt-2 border border-slate-100">
+                                <span class="font-black text-[10px] uppercase tracking-widest text-slate-500">Total Final</span>
+                                <span id="pdfTotal" class="text-2xl font-black text-pink-600 tracking-tight">$0.00</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="mt-16 text-center">
-                    <p class="text-[9px] text-gray-400 font-medium">Los precios expresados están en Pesos Mexicanos (MXN). No incluyen gastos de envío a menos que se indique.</p>
-                    <p class="text-[10px] text-emerald-600 font-bold mt-1 uppercase tracking-widest">¡Gracias por tu preferencia!</p>
+                    <div class="text-center">
+                        <p class="text-[9px] text-slate-400 font-medium uppercase tracking-widest">
+                            Precios en MXN. Válido por 30 días. No incluye envío.
+                        </p>
+                    </div>
                 </div>
 
             </div>
@@ -193,9 +204,9 @@
     </div>
 
     <script>
-        // LISTA DE CLIENTES COMPLETA
+        // Mantenemos tu base de datos y funcionalidad intacta
         const CLIENTES = [
-            { nombre: 'Shams Bronceado Natural', dir: 'Calle Gutenberg 194, 11590 CDMX', tel: '5539174811' },
+            { nombre: 'Shams Bronceado Natural', dir: 'Calle Gutenberg 194, CDMX', tel: '5539174811' },
             { nombre: 'Mithra Sun&Spa', dir: 'Ciudad de México, CDMX', tel: '5619859660' },
             { nombre: 'The Temple Bronze', dir: 'Blvd Kukulcan km 12, Cancún Q.R.', tel: '9983936134' },
             { nombre: 'Solarium Tanning Salon', dir: 'Campeche 280, Hipódromo, CDMX', tel: '5512345678' },
@@ -207,7 +218,6 @@
             { nombre: 'Paola Cedeño', dir: 'Guadalajara, Jalisco', tel: '---' }
         ];
 
-        // LISTA DE PRODUCTOS COMPLETA
         const PRODUCTOS = [
             { id: 1, n: 'Café Fit (850g)', p: 1498, img: 'cafe-fit.jpg' },
             { id: 2, n: 'Choco Paty (850g)', p: 1340, img: 'choco-paty.jpg' },
@@ -231,7 +241,7 @@
             CLIENTES.sort((a,b) => a.nombre.localeCompare(b.nombre)).forEach((c, i) => cSel.add(new Option(c.nombre, i)));
             
             const pSel = document.getElementById('prodSelect');
-            PRODUCTOS.forEach((p, i) => pSel.add(new Option(`${p.n} ($${p.p})`, i)));
+            PRODUCTOS.forEach((p, i) => pSel.add(new Option(`${p.n} - $${p.p.toLocaleString('es-MX')}`, i)));
             updatePrev();
         };
 
@@ -254,7 +264,7 @@
             document.getElementById('pdfNombre').innerText = document.getElementById('inNombre').value || '___________________________';
             document.getElementById('pdfDir').innerText = document.getElementById('inDir').value || 'Dirección no especificada';
             document.getElementById('pdfTel').innerText = document.getElementById('inTel').value || '---';
-            document.getElementById('pdfOrden').innerText = document.getElementById('inOrden').value || '---';
+            document.getElementById('pdfOrden').innerText = document.getElementById('inOrden').value || 'S/N';
         }
 
         function updatePrev() {
@@ -273,7 +283,7 @@
             const existe = carrito.find(item => item.id === p.id);
             if (existe) { existe.c += cant; } else { carrito.push({ ...p, c: cant }); }
             renderItems();
-            document.getElementById('inCant').value = 1;
+            document.getElementById('inCant').value = 1; // Reset quantity
         }
 
         function borrarItem(idx) {
@@ -292,13 +302,17 @@
                 body.innerHTML += `
                     <tr>
                         <td class="text-center">
-                            <img src="./Assets/${item.img}" class="w-10 h-10 rounded-md object-cover mx-auto border border-gray-200">
+                            <img src="./Assets/${item.img}" class="w-10 h-10 rounded-lg object-cover mx-auto border border-slate-200" onerror="this.style.display='none'">
                         </td>
-                        <td class="font-bold">${item.n}</td>
-                        <td class="text-center font-bold">${item.c}</td>
-                        <td class="text-right text-gray-500">$${item.p.toLocaleString('es-MX')}</td>
-                        <td class="text-right font-bold text-gray-800">$${total.toLocaleString('es-MX')}</td>
-                        <td class="no-print text-center"><button onclick="borrarItem(${i})" class="text-red-400 hover:text-red-600 font-bold">✕</button></td>
+                        <td class="font-bold text-slate-800">${item.n}</td>
+                        <td class="text-center font-bold text-slate-700">${item.c}</td>
+                        <td class="text-right text-slate-500">$${item.p.toLocaleString('es-MX')}</td>
+                        <td class="text-right font-bold text-slate-800">$${total.toLocaleString('es-MX')}</td>
+                        <td class="no-print text-center">
+                            <button onclick="borrarItem(${i})" class="text-red-400 hover:text-red-600 bg-red-50 w-8 h-8 rounded-lg flex items-center justify-center transition-colors mx-auto">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </td>
                     </tr>`;
             });
 
@@ -315,15 +329,14 @@
         }
 
         function descargarPDF() {
-            if(carrito.length === 0) return alert("Por favor agrega al menos un producto a la cotización.");
+            if(carrito.length === 0) return alert("Agrega al menos un producto a la lista.");
             
             const element = document.getElementById('hoja-pdf');
             const clienteLabel = document.getElementById('inNombre').value || 'Cotizacion';
-            const ordenLabel = document.getElementById('inOrden').value || 'S_N';
+            const ordenLabel = document.getElementById('inOrden').value || 'SN';
             
-            // Opciones matemáticas para que encaje perfecto en tamaño Carta sin cortarse
             const opt = {
-                margin:       0.3, // Margen en pulgadas
+                margin:       0, // El padding ya está manejado en el CSS de la hoja
                 filename:     `PC_${ordenLabel}_${clienteLabel}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },

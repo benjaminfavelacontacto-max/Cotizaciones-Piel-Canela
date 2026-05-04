@@ -104,20 +104,101 @@
     </div>
 
     <script>
-                // ==========================================
-        // 📦 TU BASE DE DATOS (CON CARPETA ASSETS)
+               // ==========================================
+        // 📦 TU BASE DE DATOS COMPLETA (CON CARPETA ASSETS)
         // ==========================================
         const CATALOGO = [
-            { id: '1', nombre: 'Café Fit (850g)', precio: 1498, imagen: './Assets/cafe.jpg' },
-            { id: '2', nombre: 'Choco Paty (850g)', precio: 1340, imagen: './Assets/choco.jpg' },
-            { id: '3', nombre: 'Morango Bronze (850g)', precio: 1340, imagen: './Assets/morango.jpg' },
-            { id: '4', nombre: 'Potência 3.0 (850g)', precio: 2243, imagen: './Assets/potencia3.jpg' },
-            { id: '5', nombre: 'Potência Ultra (1kg)', precio: 1980, imagen: './Assets/potencia-ultra.jpg' },
-            { id: '6', nombre: 'Ametista UV 1 (900ml)', precio: 2113, imagen: './Assets/ametista1.jpg' },
-            { id: '7', nombre: 'Ametista UV 2 (900ml)', precio: 1440, imagen: './Assets/ametista2.jpg' },
-            { id: '8', nombre: 'Dolomita (500g)', precio: 620, imagen: './Assets/dolomita.jpg' },
-            { id: '9', nombre: 'Argila Branca (500g)', precio: 636, imagen: './Assets/argila.jpg' },
-            { id: '10', nombre: 'Cinta Vermelha-c9', precio: 150, imagen: './Assets/cinta-roja.jpg' }
+            // ACTIVADORES Y PRODUCTOS UV
+            { id: 'AC-850-CF', nombre: 'Café Fit (850g)', precio: 1498, imagen: './Assets/cafe-fit.jpg' },
+            { id: 'AC-850-CP', nombre: 'Choco Paty (850g)', precio: 1340, imagen: './Assets/choco-paty.jpg' },
+            { id: 'AC-850-MOR', nombre: 'Morango Bronze (850g)', precio: 1340, imagen: './Assets/morango-bronze.jpg' },
+            { id: 'AC-850-PES', nombre: 'Pêssego Bronze (850g)', precio: 1340, imagen: './Assets/pessego-bronze.jpg' },
+            { id: 'AC-1000-PU', nombre: 'Potência Ultra (1kg)', precio: 1980, imagen: './Assets/potencia-ultra.jpg' },
+            { id: 'AC-900-AM1', nombre: 'Ametista UV 1 (900ml)', precio: 2113, imagen: './Assets/ametista-uv-1.jpg' },
+            { id: 'AC-850-NEU', nombre: 'Soft Ativador Neutro (850g)', precio: 1307, imagen: './Assets/soft-ativador-neutro.jpg' },
+            { id: 'PO-850-PM2.0', nombre: 'Potencia Maxima 2.0 (850g)', precio: 1957, imagen: './Assets/potencia-maxima-2.jpg' },
+            { id: 'PO-900-AM2', nombre: 'Ametista UV II (900ml)', precio: 1440, imagen: './Assets/ametista-uv-2.jpg' },
+            { id: 'PO-850-PM3.0', nombre: 'Potência 3.0 (850g)', precio: 2243, imagen: './Assets/potencia-3.jpg' },
+            { id: 'AE-1L-SEM', nombre: 'Sem Sol (1 lt)', precio: 6900, imagen: './Assets/sem-sol.jpg' },
+            
+            // OXÍGENOS (OX)
+            { id: 'OX30-900-MOR', nombre: 'OX 30 Vol. Morango (900ml)', precio: 870, imagen: './Assets/ox30-morango.jpg' },
+            { id: 'OX40-900-CHO', nombre: 'OX 40 Vol. Chocolate (900ml)', precio: 870, imagen: './Assets/ox40-chocolate.jpg' },
+            { id: 'OX40-900-PES', nombre: 'OX 40 Vol. Pêssego (900ml)', precio: 870, imagen: './Assets/ox40-pessego.jpg' },
+            { id: 'OX30-5L-MOR', nombre: 'OX 30 Vol. Morango5 (5lt)', precio: 3313, imagen: './Assets/ox30-morango-5l.jpg' },
+            { id: 'OX40-5L-CHO', nombre: 'OX 40 Vol. Chocolate5 (5lt)', precio: 3474, imagen: './Assets/ox40-chocolate-5l.jpg' },
+            { id: 'OX40-900-NEU', nombre: 'Soft Ox 40 Vol Neutro (900ml)', precio: 913, imagen: './Assets/ox40-neutro.jpg' },
+            { id: 'OX40-5L-NEU', nombre: 'Soft Ox 40 Vol Neutro5 (5lt)', precio: 3281, imagen: './Assets/ox40-neutro-5l.jpg' },
+            { id: 'OX20-900-CAM', nombre: 'Ox 20 Vol. Camomila (900ml)', precio: 1352, imagen: './Assets/ox20-camomila.jpg' },
+            
+            // POLVOS DECOLORANTES (PÓ)
+            { id: 'PB-500-MOR', nombre: 'Pó Morango (500g)', precio: 1236, imagen: './Assets/po-morango.jpg' },
+            { id: 'PB-500-CHO', nombre: 'Pó Chocolate (500g)', precio: 1236, imagen: './Assets/po-chocolate.jpg' },
+            { id: 'PB-500-PES', nombre: 'Pó Pêssego (500g)', precio: 1237, imagen: './Assets/po-pessego.jpg' },
+            { id: 'PB-500-NEU', nombre: 'Soft Pó Desc. Neutro (500g)', precio: 1234, imagen: './Assets/po-neutro.jpg' },
+            { id: 'PB-500-CAM', nombre: 'Pó Desc. Camomila (500g)', precio: 1110, imagen: './Assets/po-camomila.jpg' },
+            
+            // EXFOLIANTES
+            { id: 'EX-850-MOR', nombre: 'Esfol. Morango (850g)', precio: 938, imagen: './Assets/esfol-morango.jpg' },
+            { id: 'EX-850-CHO', nombre: 'Esfol. Chocolate (850g)', precio: 938, imagen: './Assets/esfol-chocolate.jpg' },
+            { id: 'EX-850-PES', nombre: 'Esfol. Pêssego (850g)', precio: 938, imagen: './Assets/esfol-pessego.jpg' },
+            { id: 'EXG-850-NEU', nombre: 'Soft esfoliante gel neutro (850g)', precio: 1141, imagen: './Assets/esfol-gel-neutro.jpg' },
+            { id: 'EXC-850-NEU', nombre: 'Soft esfoliante creme neutro (850g)', precio: 881, imagen: './Assets/esfol-creme-neutro.jpg' },
+            
+            // HIDRATANTES Y OTROS
+            { id: 'HI-850-MOR', nombre: 'Hidrat. Morango (850g)', precio: 1285, imagen: './Assets/hidrat-morango.jpg' },
+            { id: 'HI-850-CHO', nombre: 'Hidrat. Chocolate (850g)', precio: 1266, imagen: './Assets/hidrat-chocolate.jpg' },
+            { id: 'HI-850-PES', nombre: 'Hidrat. Pêssego (850g)', precio: 1286, imagen: './Assets/hidrat-pessego.jpg' },
+            { id: 'HI-850-NEU', nombre: 'Soft Hidratante Neutro (850g)', precio: 1208, imagen: './Assets/hidrat-neutro.jpg' },
+            { id: 'OLE-450', nombre: 'Óleo iluminador (450ml)', precio: 1092, imagen: './Assets/oleo-iluminador.jpg' },
+            { id: 'AE-1L-BAR', nombre: 'Aerografía Rosa BaruK (1L)', precio: 5762, imagen: './Assets/aerografia-rosa.jpg' },
+            { id: 'SM-00', nombre: 'Sombrilla Rayo UV (1PZA)', precio: 680, imagen: './Assets/sombrilla.jpg' },
+            
+            // DYE COLORS
+            { id: 'DY-60-BLU', nombre: 'Dye Color Blue (60ml)', precio: 787, imagen: './Assets/dye-blue.jpg' },
+            { id: 'DY-60-RED', nombre: 'Dye Color Red (60ml)', precio: 787, imagen: './Assets/dye-red.jpg' },
+            { id: 'DY-60-GRE', nombre: 'Dye Color Green (60ml)', precio: 787, imagen: './Assets/dye-green.jpg' },
+            { id: 'DY-60-PUR', nombre: 'Dye Color Purple (60ml)', precio: 787, imagen: './Assets/dye-purple.jpg' },
+            { id: 'DY-60-YEL', nombre: 'Dye Color Yellow (60ml)', precio: 787, imagen: './Assets/dye-yellow.jpg' },
+
+            // CINTAS Y ACCESORIOS (TODOS A $150)
+            { id: 'CN-PES', nombre: 'Cinta Signo pesos (1PZA)', precio: 150, imagen: './Assets/cinta-pesos.jpg' },
+            { id: 'CN-CEB', nombre: 'Cinta Cebra roja (1PZA)', precio: 150, imagen: './Assets/cinta-cebra-roja.jpg' },
+            { id: 'CN-LV', nombre: 'Cinta Louis Vuitton (1PZA)', precio: 150, imagen: './Assets/cinta-lv.jpg' },
+            { id: 'CN-AP-AMA', nombre: 'Cinta Animal print am. (1PZA)', precio: 150, imagen: './Assets/cinta-ap-amarilla.jpg' },
+            { id: 'CN-CON-NEG', nombre: 'Cinta Conejita negra (1PZA)', precio: 150, imagen: './Assets/cinta-conejita-negra.jpg' },
+            { id: 'CN-CON-ROS', nombre: 'Cinta Conejita rosada (1PZA)', precio: 150, imagen: './Assets/cinta-conejita-rosada.jpg' },
+            { id: 'CN-BES-ROJ', nombre: 'Cinta Besos rojos (1PZA)', precio: 150, imagen: './Assets/cinta-besos-rojos.jpg' },
+            { id: 'CN-COR', nombre: 'Cinta Corazones (1PZA)', precio: 150, imagen: './Assets/cinta-corazones.jpg' },
+            { id: 'CN-FLO-NBL', nombre: 'Cinta Flor negra c/ blanca (1PZA)', precio: 150, imagen: './Assets/cinta-flor.jpg' },
+            { id: 'CN-EST-ROJ', nombre: 'Cinta Estrella roja (1PZA)', precio: 150, imagen: './Assets/cinta-estrella.jpg' },
+            { id: 'CN-ROM-NRO', nombre: 'Rombo negro-rojo (1PZA)', precio: 150, imagen: './Assets/cinta-rombo.jpg' },
+            { id: 'CN-CHI', nombre: 'Cinta Chiles (1PZA)', precio: 150, imagen: './Assets/cinta-chiles.jpg' },
+            { id: 'CN-BRA', nombre: 'Cinta Brasil (1PZA)', precio: 150, imagen: './Assets/cinta-brasil.jpg' },
+            { id: 'CN-VAC', nombre: 'Cinta Vaca (1PZA)', precio: 150, imagen: './Assets/cinta-vaca.jpg' },
+            { id: 'CN-VER-NEO', nombre: 'Cinta Verde neón (1PZA)', precio: 150, imagen: './Assets/cinta-verde-neon.jpg' },
+            { id: 'CN-ROJ', nombre: 'Cinta Roja (1PZA)', precio: 150, imagen: './Assets/cinta-roja.jpg' },
+            { id: 'CN-BLA', nombre: 'Cinta Blanca (1PZA)', precio: 150, imagen: './Assets/cinta-blanca.jpg' },
+            { id: 'CN-NEG', nombre: 'Cinta Negro (1PZA)', precio: 150, imagen: './Assets/cinta-negro.jpg' },
+            
+            // FITAS CORTADAS/INTEIRAS ESPECÍFICAS
+            { id: 'CN-AP-C9', nombre: 'Animal print-amarilla-c9', precio: 150, imagen: './Assets/animal-print-c9.jpg' },
+            { id: 'CN-GU-CE', nombre: 'Gucci-e', precio: 150, imagen: './Assets/gucci-e.jpg' },
+            { id: 'CN-GU-C9', nombre: 'Gucci-c9', precio: 150, imagen: './Assets/gucci-c9.jpg' },
+            { id: 'CN-CROJ-C9', nombre: 'Conejita Roja-c9', precio: 150, imagen: './Assets/conejita-roja-c9.jpg' },
+            { id: 'CN-MM-C9', nombre: 'Minie Mouse-c9', precio: 150, imagen: './Assets/minie-c9.jpg' },
+            { id: 'CN-POK-C9', nombre: 'Poker-c9', precio: 150, imagen: './Assets/poker-c9.jpg' },
+            { id: 'CN-LV-C9', nombre: 'Louis Vuitton-c9', precio: 150, imagen: './Assets/lv-c9.jpg' },
+            { id: 'CN-AZ-C9', nombre: 'Azul-c9', precio: 150, imagen: './Assets/azul-c9.jpg' },
+            { id: 'CN-CER-C9', nombre: 'Cereja-c9', precio: 150, imagen: './Assets/cereja-c9.jpg' },
+            { id: 'CN-FLW-C9', nombre: 'Flowers-c9', precio: 150, imagen: './Assets/flowers-c9.jpg' },
+            { id: 'CN-PIM-C9', nombre: 'Pimenta-c9', precio: 150, imagen: './Assets/pimenta-c9.jpg' },
+            { id: 'CN-ROS-C9', nombre: 'Rosa-c9', precio: 150, imagen: './Assets/rosa-c9.jpg' },
+            { id: 'CN-VMH-C9', nombre: 'Vermelha-c9', precio: 150, imagen: './Assets/vermelha-c9.jpg' },
+            { id: 'CN-BRO-C9', nombre: 'Besos rojos-c9', precio: 150, imagen: './Assets/besos-rojos-c9.jpg' },
+            { id: 'CN-CORB-C9', nombre: 'Corazones B/R-c9', precio: 150, imagen: './Assets/corazones-br-c9.jpg' },
+            { id: 'CN-OJOS-C9', nombre: 'Ojos-c9', precio: 150, imagen: './Assets/ojos-c9.jpg' },
+            { id: 'CN-BARB-C9', nombre: 'Barbie-c9', precio: 150, imagen: './Assets/barbie-c9.jpg' }
         ];
 
         let items = [];

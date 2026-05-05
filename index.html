@@ -13,17 +13,23 @@
         body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color: #f0fdf4; }
         
         /* =======================================================
-           FORMATO ESTRICTO DEL PDF (Tamaño Carta)
+           FORMATO ESTRICTO DEL PDF (Tamaño Carta Exacto)
            ======================================================= */
-        #hoja-pdf {
-            width: 816px; /* Ancho exacto de Carta a 96dpi */
-            background: #ffffff;
-            padding: 48px; /* Respiración (Aire visual) */
-            position: relative;
-            color: #1f2937;
+        #contenedor-pdf-wrapper {
+            display: flex;
+            justify-content: center;
         }
 
-        /* Tabla Estricta (Alineación perfecta matemática) */
+        #hoja-pdf {
+            width: 816px; /* Ancho matemático para Tamaño Carta a 96 DPI */
+            background: #ffffff;
+            padding: 48px; /* Margen estético */
+            position: relative;
+            color: #1f2937;
+            /* Cero alturas forzadas para evitar páginas en blanco extras */
+        }
+
+        /* Tabla Estricta */
         .tabla-premium { 
             width: 100%; 
             border-collapse: collapse; 
@@ -46,7 +52,6 @@
             vertical-align: middle; 
         }
         
-        /* Reglas de Impresión y Color Exacto */
         tr { page-break-inside: avoid; }
         .print-bg { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         .no-print { display: block; }
@@ -56,7 +61,6 @@
             #hoja-pdf { padding: 0 !important; border: none !important; box-shadow: none !important; }
         }
         
-        /* Animaciones UI */
         .dot { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         input:checked ~ .dot { transform: translateX(100%); }
         input:checked ~ .bg-toggle { background-color: #ec4899; } 
@@ -124,7 +128,7 @@
             </div>
         </div>
 
-        <div class="lg:col-span-7 bg-white/60 p-4 md:p-8 rounded-3xl shadow-inner border border-emerald-100 overflow-x-auto flex justify-center" id="contenedor-pdf-wrapper">
+        <div class="lg:col-span-7 bg-white/60 p-4 md:p-8 rounded-3xl shadow-inner border border-emerald-100 overflow-x-auto" id="contenedor-pdf-wrapper">
             
             <div id="hoja-pdf" class="shadow-2xl rounded-sm flex flex-col shrink-0">
                 
@@ -167,7 +171,7 @@
                     </div>
                 </div>
 
-                <div class="flex-1 min-h-[250px]"> 
+                <div class="flex-1"> 
                     <table class="tabla-premium mb-6">
                         <colgroup>
                             <col style="width: 12%;">
@@ -192,7 +196,7 @@
                     </table>
                 </div>
 
-                <div class="flex justify-end pt-6">
+                <div class="flex justify-end pt-6 mt-8">
                     <div class="w-80">
                         <div class="flex justify-between text-sm mb-3 px-3">
                             <span class="font-bold text-gray-500 uppercase text-[11px] tracking-wider">Subtotal Bruto</span>
@@ -404,24 +408,35 @@
         
         function limpiarCotizacion() { carrito = []; document.getElementById('clienteSelect').value=''; document.getElementById('inNombre').value=''; document.getElementById('inDir').value=''; document.getElementById('inTel').value=''; document.getElementById('inOrden').value=''; document.getElementById('ivaCheck').checked=false; sincronizar(); renderItems(); }
 
-        // --- LA MAGIA CONTRA LOS RECORTES (EL FIX DEFINITIVO) ---
+        // === SOLUCIÓN DEFINITIVA DE PDF (El candado de pixeles) ===
         function descargarPDF() {
             if(carrito.length === 0) return alert("Agrega al menos un producto.");
             
-            const element = document.getElementById('hoja-pdf');
-            const wrapper = document.getElementById('contenedor-pdf-wrapper');
+            const hoja = document.getElementById('hoja-pdf');
             
-            // Ocultar botones de borrar temporalmente
+            // 1. Ocultar cruces de eliminar
             const botonesEliminar = document.querySelectorAll('.btn-eliminar-pdf');
             botonesEliminar.forEach(btn => btn.style.display = 'none');
 
-            // TRUCO VITAL: Quitamos el "justify-center" y lo mandamos hasta la izquierda
-            // Esto asegura que html2canvas siempre tenga coordenada 0,0 real en el dispositivo
-            wrapper.classList.remove('justify-center');
-            wrapper.classList.add('justify-start');
-            wrapper.scrollLeft = 0;
-            window.scrollTo(0,0);
+            // 2. Guardamos la estructura original para regresarla después
+            const parentOriginal = hoja.parentNode;
+            const siblingOriginal = hoja.nextSibling;
 
+            // 3. LA MAGIA: Creamos un contenedor fantasma que rompe TODAS las reglas de tu pantalla
+            // Lo ponemos en la coordenada 0,0 para que la cámara no falle nunca.
+            const contenedorFantasma = document.createElement('div');
+            contenedorFantasma.style.position = 'absolute';
+            contenedorFantasma.style.top = '0';
+            contenedorFantasma.style.left = '0';
+            contenedorFantasma.style.width = '816px'; 
+            contenedorFantasma.style.background = 'white';
+            contenedorFantasma.style.zIndex = '-100'; // Detrás de todo
+            
+            // Movemos la hoja al contenedor fantasma
+            contenedorFantasma.appendChild(hoja);
+            document.body.appendChild(contenedorFantasma);
+
+            // 4. Forzamos un mapeo exacto (1 pixel HTML = 1 pixel PDF)
             const opt = {
                 margin: 0, 
                 filename: `PC_${document.getElementById('inOrden').value || 'SN'}_${document.getElementById('inNombre').value || 'Coti'}.pdf`,
@@ -429,18 +444,21 @@
                 html2canvas: { 
                     scale: 2, 
                     useCORS: true,
-                    scrollX: 0,
-                    scrollY: 0,
+                    width: 816, // La cámara no podrá encogerse más de esto
                     windowWidth: 816
                 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                jsPDF: { unit: 'px', format: [816, 1056], orientation: 'portrait' }
             };
             
-            html2pdf().set(opt).from(element).save().then(() => {
-                // Restauramos botones y el centrado de la hoja
+            // 5. Tomar la foto y regresar todo a la normalidad
+            html2pdf().set(opt).from(contenedorFantasma).save().then(() => {
+                if (siblingOriginal) {
+                    parentOriginal.insertBefore(hoja, siblingOriginal);
+                } else {
+                    parentOriginal.appendChild(hoja);
+                }
+                document.body.removeChild(contenedorFantasma);
                 botonesEliminar.forEach(btn => btn.style.display = '');
-                wrapper.classList.remove('justify-start');
-                wrapper.classList.add('justify-center');
             });
         }
     </script>

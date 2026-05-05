@@ -13,10 +13,9 @@
         body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color: #f0fdf4; }
         
         /* =======================================================
-           FORMATO ESTRICTO DEL PDF (Tamaño Carta - 1 sola hoja)
+           FORMATO ESTRICTO DEL PDF (Tamaño Carta)
            ======================================================= */
         #contenedor-pdf-wrapper {
-            /* Este wrapper evita que el scroll de la pantalla corte el PDF */
             display: flex;
             justify-content: center;
         }
@@ -27,18 +26,17 @@
             padding: 48px; /* Respiración (Aire visual) */
             position: relative;
             color: #1f2937;
-            /* Se elimina la altura fija para que no genere hojas en blanco extras */
         }
 
-        /* Tabla Estricta (Alineación perfecta) */
+        /* Tabla Estricta (Alineación perfecta matemática) */
         .tabla-premium { 
             width: 100%; 
             border-collapse: collapse; 
-            table-layout: fixed; /* Mantiene proporciones matemáticas exactas */
+            table-layout: fixed; 
         }
         .tabla-premium th { 
-            background-color: #ecfdf5; /* Fondo Esmeralda muy claro */
-            color: #047857; /* Texto Esmeralda fuerte */
+            background-color: #ecfdf5; 
+            color: #047857; 
             font-weight: 800; 
             text-transform: uppercase; 
             font-size: 10px; 
@@ -53,9 +51,9 @@
             vertical-align: middle; 
         }
         
-        /* Reglas de Impresión */
+        /* Reglas de Impresión y Color Exacto */
         tr { page-break-inside: avoid; }
-        .print-bg { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .print-bg { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         .no-print { display: block; }
 
         @media print { 
@@ -66,7 +64,7 @@
         /* Animaciones UI */
         .dot { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         input:checked ~ .dot { transform: translateX(100%); }
-        input:checked ~ .bg-toggle { background-color: #ec4899; } /* Pink 500 */
+        input:checked ~ .bg-toggle { background-color: #ec4899; } 
         .seccion-oculta { display: none !important; }
     </style>
 </head>
@@ -411,17 +409,28 @@
         
         function limpiarCotizacion() { carrito = []; document.getElementById('clienteSelect').value=''; document.getElementById('inNombre').value=''; document.getElementById('inDir').value=''; document.getElementById('inTel').value=''; document.getElementById('inOrden').value=''; document.getElementById('ivaCheck').checked=false; sincronizar(); renderItems(); }
 
-        // --- DESCARGA PDF PERFECTA ---
+        // --- LA SOLUCIÓN DEL GHOST CLONING PARA PDF PERFECTO ---
         function descargarPDF() {
             if(carrito.length === 0) return alert("Agrega al menos un producto.");
             
             const element = document.getElementById('hoja-pdf');
             
-            // Ocultamos temporalmente los botones de eliminar para que la cámara no detecte "fantasmas"
+            // Ocultar botones de borrar temporalmente
             const botonesEliminar = document.querySelectorAll('.btn-eliminar-pdf');
             botonesEliminar.forEach(btn => btn.style.display = 'none');
 
-            // Configuración exacta para evitar el corte a la mitad y el salto de página extra
+            // CLON FANTASMA: Se copia el documento y se pone en X=0, Y=0 para que la cámara no falle
+            const clone = element.cloneNode(true);
+            const tempContainer = document.createElement('div');
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.top = '0';
+            tempContainer.style.left = '0';
+            tempContainer.style.width = '816px'; // Ancho estricto sin recortes
+            tempContainer.style.zIndex = '-9999';
+            tempContainer.style.background = 'white';
+            tempContainer.appendChild(clone);
+            document.body.appendChild(tempContainer);
+
             const opt = {
                 margin: 0, 
                 filename: `PC_${document.getElementById('inOrden').value || 'SN'}_${document.getElementById('inNombre').value || 'Coti'}.pdf`,
@@ -429,16 +438,15 @@
                 html2canvas: { 
                     scale: 2, 
                     useCORS: true,
-                    scrollX: 0,
-                    scrollY: 0,
-                    windowWidth: 816 // Obliga a capturar el ancho completo aunque la pantalla sea chica
+                    windowWidth: 816 // Coincide con el contenedor fantasma
                 },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
             
-            html2pdf().set(opt).from(element).save().then(() => {
-                // Restauramos los botones
+            html2pdf().set(opt).from(clone).save().then(() => {
+                // Restauramos la interfaz y destruimos el fantasma
                 botonesEliminar.forEach(btn => btn.style.display = '');
+                document.body.removeChild(tempContainer);
             });
         }
     </script>
